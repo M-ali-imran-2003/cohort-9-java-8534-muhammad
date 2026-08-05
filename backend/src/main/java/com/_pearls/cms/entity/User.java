@@ -4,16 +4,17 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id; // Fix: Changed from Spring Data Id to JPA Id
 
 import java.time.LocalDateTime;
 
 @Entity(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "full_name")
     private String name;
@@ -30,16 +31,14 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // Default constructor (Required by JPA)
     public User() {
     }
 
-    // Getters and Setters
-    public Integer getUserId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setUserId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -72,7 +71,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = this.password;
+        this.password = password; // Fixed typo in your original code (this.password = this.password)
     }
 
     public LocalDateTime getCreatedAt() {
@@ -81,5 +80,17 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    // 1. Safe toString Method (No password field included)
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }

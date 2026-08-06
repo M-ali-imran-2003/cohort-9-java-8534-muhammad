@@ -49,31 +49,38 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(
+            MethodArgumentNotValidException ex, HttpServletRequest request) {
 
         logger.warn("Input validation failed: {}", ex.getMessage());
 
-        Map<String, String> errors = new HashMap<>();
-
+        Map<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult()
                 .getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeError(RuntimeException ex,HttpServletRequest request) {
-
-        logger.warn("Invalid Request: {}", ex.getMessage());
+                .forEach(error -> fieldErrors.put(error.getField(), error.getDefaultMessage()));
 
         ErrorResponse error = new ErrorResponse(
-                "INVALID_REQUEST",
+                "VALIDATION_FAILED",
+                "One or more fields are invalid",
+                request.getRequestURI(),
+                fieldErrors
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex,HttpServletRequest request) {
+
+        logger.warn("Invalid Credential provided: {}", ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                "INVALID_CREDENTIAL",
                 ex.getMessage(),
                 request.getRequestURI()
         );
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)

@@ -3,6 +3,7 @@ package com._pearls.cms.service;
 import com._pearls.cms.dto.LoginRequest;
 import com._pearls.cms.dto.RegisterRequest;
 import com._pearls.cms.entity.User;
+import com._pearls.cms.exception.InvalidCredentialsException;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
@@ -66,13 +67,14 @@ public class AuthService {
                 return dbUser;
             }
             else{
-                throw new RuntimeException("Invalid Password");
+                log.warn("Password does not match for: {}",loginRequest.getIdentifier());
+                throw new InvalidCredentialsException("Provided credentials are incorrect");
             }
 
         }
         else{
             log.warn("User Not Found with the provided Email or Phone: {}",loginRequest.getIdentifier());
-            throw new ResourceNotFoundException("User Not Found with the provided Email or Phone");
+            throw new InvalidCredentialsException("Provided credentials are incorrect");
         }
 
     }

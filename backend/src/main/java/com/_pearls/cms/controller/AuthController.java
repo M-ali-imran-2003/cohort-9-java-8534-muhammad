@@ -4,6 +4,7 @@ import com._pearls.cms.dto.LoginRequest;
 import com._pearls.cms.dto.RegisterRequest;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,38 +24,23 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest registerRequest)
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest registerRequest)
     {
-        try {
-            // Happy path: try to register the user
             authService.registerUser(registerRequest);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body("User registered successfully!");
-
-        } catch (RuntimeException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST) // This sends status code 400
-                    .body(ex.getMessage());         // This sends the exact error message text
-        }
-
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest)
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest)
     {
-        try {
-            User user = authService.login(loginRequest);
+
+        User user = authService.login(loginRequest);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(user);
-        }
-        catch (RuntimeException ex) {
-            // Error path: catch the validation errors (like "Email already exists")
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST) // This sends status code 400
-                    .body(ex.getMessage());         // This sends the exact error message text
-        }
+
     }
 }

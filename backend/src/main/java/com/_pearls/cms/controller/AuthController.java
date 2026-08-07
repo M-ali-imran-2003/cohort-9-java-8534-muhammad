@@ -1,8 +1,8 @@
 package com._pearls.cms.controller;
 
 import com._pearls.cms.dto.LoginRequest;
+import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
-import com._pearls.cms.entity.User;
 import com._pearls.cms.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,13 +34,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest)
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest)
     {
-
-        User user = authService.login(loginRequest);
+        LoginResponse token = authService.login(loginRequest);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(user);
+                    .body(token);
 
     }
 }

@@ -1,27 +1,31 @@
 package com._pearls.cms.service;
 
 import com._pearls.cms.dto.LoginRequest;
+import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
 import com._pearls.cms.entity.User;
-import com._pearls.cms.exception.InvalidCredentialsException;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
-import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+
 
 @Service
 public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final UserRepository userRepository;
-
-    public AuthService(UserRepository userRepository) {
+    private final JwtService jwtService;
+    private final PasswordEncoder encoder;
+    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
+        this.encoder = encoder;
     }
 
     public void registerUser(RegisterRequest registerRequest) {
@@ -33,27 +37,27 @@ public class AuthService {
         if (dbUser != null) {
 
             if (dbUser.getEmail() != null && dbUser.getEmail().equalsIgnoreCase(registerRequest.getEmail())) {
-                log.error("User with email already exists: {}", registerRequest.getEmail());
+                log.warn("User with email already exists: {}", registerRequest.getEmail());
                 throw new ResourceAlreadyExistsException("User with the email "+registerRequest.getEmail()+" already exist.");
             }
 
             if (dbUser.getPhone() != null && dbUser.getPhone().equals(registerRequest.getPhone())) {
-                log.error("Phone already exists: {}", registerRequest.getPhone());
+                log.warn("Phone already exists: {}", registerRequest.getPhone());
                 throw new ResourceAlreadyExistsException("User with the phone "+registerRequest.getPhone()+" already exist.");
             }
         }
 
         User user = new User();
         user.setName(registerRequest.getName());
-        user.setPassword(registerRequest.getPassword());
+        user.setPassword(encoder.encode(registerRequest.getPassword()));
         user.setEmail(registerRequest.getEmail());
         user.setPhone(registerRequest.getPhone());
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
-        log.info("User registered successfully: {}", user.toString());
+        log.info("User registered successfully: {}", user.getEmail());
     }
 
-    public User login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
 
         User dbUser = userRepository.findByEmailOrPhone(
                 loginRequest.getIdentifier(),
@@ -62,19 +66,19 @@ public class AuthService {
 
         if (dbUser != null) {
 
-            if (Objects.equals(loginRequest.getPassword(), dbUser.getPassword())) {
+            if (encoder.matches(loginRequest.getPassword(), dbUser.getPassword())) {
                 log.info("User Logged In successfully");
-                return dbUser;
+                return new LoginResponse(jwtService.generateToken(dbUser.getId()));
             }
             else{
                 log.warn("Password does not match for: {}",loginRequest.getIdentifier());
-                throw new InvalidCredentialsException("Provided credentials are incorrect");
+                throw new BadCredentialsException("Provided credentials are incorrect");
             }
 
         }
         else{
             log.warn("User Not Found with the provided Email or Phone: {}",loginRequest.getIdentifier());
-            throw new InvalidCredentialsException("Provided credentials are incorrect");
+            throw new BadCredentialsException("Provided credentials are incorrect");
         }
 
     }

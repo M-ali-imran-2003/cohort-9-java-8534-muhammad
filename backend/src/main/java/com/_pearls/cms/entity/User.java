@@ -1,10 +1,6 @@
 package com._pearls.cms.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id; // Fix: Changed from Spring Data Id to JPA Id
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
@@ -30,9 +26,6 @@ public class User {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    public User() {
-    }
 
     public Long getId() {
         return this.id;
@@ -82,15 +75,4 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    // 1. Safe toString Method (No password field included)
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
-    }
 }

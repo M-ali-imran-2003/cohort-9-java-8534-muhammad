@@ -1,11 +1,16 @@
 package com._pearls.cms.exception;
 
 import com._pearls.cms.dto.ErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -69,8 +74,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex,HttpServletRequest request) {
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(BadCredentialsException ex,HttpServletRequest request) {
 
         logger.warn("Invalid Credential provided: {}", ex.getMessage());
 
@@ -80,6 +85,31 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredToken(ExpiredJwtException ex,HttpServletRequest request) {
+
+        logger.warn("Expired JWT token intercepted: {}", ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                "TOKEN_EXPIRED",
+                "Session is expired, please log in.",
+                request.getRequestURI()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({SignatureException.class, MalformedJwtException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidJwt(JwtException ex,HttpServletRequest request) {
+        logger.warn("Invalid JWT signature/format intercepted: {}", ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                "INVALID_TOKEN",
+                "PLease provide a valid token.",
+                request.getRequestURI()
+        );
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 

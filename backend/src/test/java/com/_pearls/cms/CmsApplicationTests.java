@@ -15,7 +15,6 @@ class CmsApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// Assert that the spring context successfully created and injected your bean
 		assertThat(securityConfig).isNotNull();
 	}
 

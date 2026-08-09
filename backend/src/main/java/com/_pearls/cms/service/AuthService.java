@@ -29,22 +29,13 @@ public class AuthService {
     }
 
     public void registerUser(RegisterRequest registerRequest) {
-        User dbUser = userRepository.findByEmailOrPhone(
-                registerRequest.getEmail(),
-                registerRequest.getPhone()
-        );
-
-        if (dbUser != null) {
-
-            if (dbUser.getEmail() != null && dbUser.getEmail().equalsIgnoreCase(registerRequest.getEmail())) {
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
                 log.warn("User with email already exists: {}", registerRequest.getEmail());
                 throw new ResourceAlreadyExistsException("User with the email "+registerRequest.getEmail()+" already exist.");
-            }
-
-            if (dbUser.getPhone() != null && dbUser.getPhone().equals(registerRequest.getPhone())) {
-                log.warn("Phone already exists: {}", registerRequest.getPhone());
-                throw new ResourceAlreadyExistsException("User with the phone "+registerRequest.getPhone()+" already exist.");
-            }
+        }
+        if (userRepository.existsByPhone(registerRequest.getPhone())) {
+            log.warn("User with phone already exists: {}", registerRequest.getPhone());
+            throw new ResourceAlreadyExistsException("User with the phone "+registerRequest.getPhone()+" already exist.");
         }
 
         User user = new User();
@@ -60,7 +51,6 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
 
         User dbUser = userRepository.findByEmailOrPhone(
-                loginRequest.getIdentifier(),
                 loginRequest.getIdentifier()
         );
 

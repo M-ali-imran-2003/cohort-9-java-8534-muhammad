@@ -22,13 +22,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
+
     public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.encoder = encoder;
     }
 
-    public void registerUser(RegisterRequest registerRequest) {
+    public String register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
                 log.warn("User with email already exists: {}", registerRequest.getEmail());
                 throw new ResourceAlreadyExistsException("User with the email "+registerRequest.getEmail()+" already exist.");
@@ -46,6 +47,7 @@ public class AuthService {
         user.setCreatedAt(LocalDateTime.now());
         userRepository.save(user);
         log.info("User registered successfully: {}", user.getEmail());
+        return "Registration Successful";
     }
 
     public LoginResponse login(LoginRequest loginRequest) {

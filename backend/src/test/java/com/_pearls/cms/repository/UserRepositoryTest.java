@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-public class UserRepositoryTest {
+class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
 
     @Test
-    public void testFindByEmailOrPhoneFoundEmail() {
+    void testFindByEmailOrPhoneFoundEmail() {
         User user = new User();
         user.setName("Ali");
         user.setPhone("03009286388");
@@ -31,7 +31,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testFindByEmailOrPhoneFoundPhone() {
+    void testFindByEmailOrPhoneFoundPhone() {
         User user = new User();
         user.setName("Ali");
         user.setPhone("03009286388");
@@ -46,13 +46,13 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testFindByEmailOrPhoneFoundNothing() {
+    void testFindByEmailOrPhoneFoundNothing() {
         User found =  userRepository.findByEmailOrPhone("abc123");
         assertThat(found).isNull();
     }
 
     @Test
-    public void testExistsByEmailTrue() {
+    void testExistsByEmailTrue() {
         User user = new User();
         user.setName("Ali");
         user.setPhone("03009286388");
@@ -65,13 +65,13 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testExistsByEmailFalse() {
+    void testExistsByEmailFalse() {
         boolean exists =  userRepository.existsByEmail("ali@test.com");
         assertThat(exists).isFalse();
     }
 
     @Test
-    public void testExistsByPhoneTrue() {
+    void testExistsByPhoneTrue() {
         User user = new User();
         user.setName("Ali");
         user.setPhone("03009286388");
@@ -84,7 +84,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void testExistsByPhoneFalse() {
+    void testExistsByPhoneFalse() {
         boolean exists =  userRepository.existsByPhone("03009286388");
         assertThat(exists).isFalse();
     }

@@ -75,4 +75,16 @@ public class User {
         this.createdAt = createdAt;
     }
 
+    public User(Long id, String name, String email, String phone, String password, LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+        this.createdAt = createdAt;
+    }
+
+    public User() {
+
+    }
 }

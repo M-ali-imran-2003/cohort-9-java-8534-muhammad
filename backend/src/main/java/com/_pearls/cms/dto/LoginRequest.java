@@ -17,4 +17,9 @@ public class LoginRequest {
     public String getPassword() {
         return this.password;
     }
+
+    public LoginRequest(String identifier, String password) {
+        this.identifier = identifier;
+        this.password = password;
+    }
 }

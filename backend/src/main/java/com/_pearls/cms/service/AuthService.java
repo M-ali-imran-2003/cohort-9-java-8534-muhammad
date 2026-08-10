@@ -8,6 +8,7 @@ import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,12 @@ public class AuthService {
 
     public String register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-                log.warn("User with email already exists: {}", registerRequest.getEmail());
-                throw new ResourceAlreadyExistsException("User with the email "+registerRequest.getEmail()+" already exist.");
+                log.warn("User with email already exists");
+                throw new ResourceAlreadyExistsException("User with the email already exist.");
         }
         if (userRepository.existsByPhone(registerRequest.getPhone())) {
-            log.warn("User with phone already exists: {}", registerRequest.getPhone());
-            throw new ResourceAlreadyExistsException("User with the phone "+registerRequest.getPhone()+" already exist.");
+            log.warn("User with phone already exists");
+            throw new ResourceAlreadyExistsException("User with the phone already exist.");
         }
 
         User user = new User();
@@ -45,8 +46,13 @@ public class AuthService {
         user.setEmail(registerRequest.getEmail());
         user.setPhone(registerRequest.getPhone());
         user.setCreatedAt(LocalDateTime.now());
-        userRepository.save(user);
-        log.info("User registered successfully: {}", user.getEmail());
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException ex) {
+            log.warn("Race condition on registration - duplicate detected at DB level");
+            throw new ResourceAlreadyExistsException("User with this email or phone already exists.");
+        }
+        log.info("User registered successfully");
         return "Registration Successful";
     }
 
@@ -63,14 +69,14 @@ public class AuthService {
                 return new LoginResponse(jwtService.generateToken(dbUser.getId()));
             }
             else{
-                log.warn("Password does not match for: {}",loginRequest.getIdentifier());
-                throw new BadCredentialsException("Provided credentials are incorrect");
+                log.warn("Password does not match for the identified user");
+                throw new BadCredentialsException("Invalid Credentials");
             }
 
         }
         else{
-            log.warn("User Not Found with the provided Email or Phone: {}",loginRequest.getIdentifier());
-            throw new BadCredentialsException("Provided credentials are incorrect");
+            log.warn("User Not Found with the provided Email or Phone");
+            throw new BadCredentialsException("Invalid Credentials");
         }
 
     }

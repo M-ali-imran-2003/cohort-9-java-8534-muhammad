@@ -15,10 +15,10 @@ public class User {
     @Column(name = "full_name")
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "phone")
+    @Column(name = "phone", unique = true, nullable = false)
     private String phone;
 
     @Column(name = "password_hash")
@@ -64,7 +64,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password; // Fixed typo in your original code (this.password = this.password)
+        this.password = password;
     }
 
     public LocalDateTime getCreatedAt() {

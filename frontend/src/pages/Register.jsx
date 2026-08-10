@@ -52,6 +52,9 @@ function Register() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form-field">
+          <label htmlFor="name" className="form-label">
+            Name
+          </label>
           <input
             className="form-input"
             type="text"
@@ -64,6 +67,9 @@ function Register() {
         </div>
 
         <div className="form-field">
+          <label htmlFor="email" className="form-label">
+            Email
+          </label>
           <input
             className="form-input"
             type="email"
@@ -76,6 +82,9 @@ function Register() {
         </div>
 
         <div className="form-field">
+          <label htmlFor="phone" className="form-label">
+            Phone
+          </label>
           <input
             className="form-input"
             type="text"
@@ -88,6 +97,9 @@ function Register() {
         </div>
 
         <div className="form-field">
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
           <input
             className="form-input"
             type="password"

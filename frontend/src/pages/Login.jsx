@@ -23,8 +23,7 @@ function Login() {
       const result = await login(data.identifier, data.password);
       localStorage.setItem("token", result.token);
 
-      setSuccess("Login Successful! Redirecting...");
-      console.log("Login success:", result);
+      setSuccess("Login Successful!");
     } catch (err) {
       setServerError(err.message || "Login failed");
     }
@@ -39,6 +38,9 @@ function Login() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form-field">
+          <label htmlFor="identifier" className="form-label">
+            Email or Phone
+          </label>
           <input
             className="form-input"
             type="text"
@@ -53,6 +55,9 @@ function Login() {
         </div>
 
         <div className="form-field">
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
           <input
             className="form-input"
             type="password"

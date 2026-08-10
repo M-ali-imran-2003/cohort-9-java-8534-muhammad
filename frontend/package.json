@@ -29,12 +29,5 @@
     "sonarqube-scanner": "^5.0.0",
     "vite": "^8.2.0",
     "vitest-sonar-reporter": "^3.0.0"
-  },
-  "jest": {
-    "testResultsProcessor": "jest-sonar-reporter",
-    "coverageReporters": [
-      "text",
-      "lcov"
-    ]
   }
 }

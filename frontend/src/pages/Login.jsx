@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { login } from "../api/authApi.js";
 import { useNavigate } from "react-router-dom";
+import "../styles/form.css";
 
 function Login() {
   const {
@@ -30,17 +31,16 @@ function Login() {
   };
 
   return (
-    <div
-      style={{ maxWidth: "350px", margin: "40px auto", textAlign: "center" }}
-    >
-      <h2>Login</h2>
+    <div className="form-container">
+      <h2 className="form-title">Login</h2>
 
-      {serverError && <p style={{ color: "red" }}>{serverError}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+      {serverError && <p className="form-message-error">{serverError}</p>}
+      {success && <p className="form-message-success">{success}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div style={{ marginBottom: "10px" }}>
+        <div className="form-field">
           <input
+            className="form-input"
             type="text"
             placeholder="Email or Phone"
             {...register("identifier", {
@@ -48,30 +48,29 @@ function Login() {
             })}
           />
           {errors.identifier && (
-            <p style={{ color: "red", fontSize: "12px" }}>
-              {errors.identifier.message}
-            </p>
+            <p className="form-error-text">{errors.identifier.message}</p>
           )}
         </div>
 
-        <div style={{ marginBottom: "10px" }}>
+        <div className="form-field">
           <input
+            className="form-input"
             type="password"
             placeholder="Password"
             {...register("password", { required: "Password is required" })}
           />
           {errors.password && (
-            <p style={{ color: "red", fontSize: "12px" }}>
-              {errors.password.message}
-            </p>
+            <p className="form-error-text">{errors.password.message}</p>
           )}
         </div>
 
-        <button type="submit">Login</button>
+        <button type="submit" className="form-button">
+          Login
+        </button>
         <button
+          className="form-button-secondary"
           type="button"
           onClick={() => navigate("/register")}
-          style={{ marginLeft: "10px" }}
         >
           Go to Register
         </button>

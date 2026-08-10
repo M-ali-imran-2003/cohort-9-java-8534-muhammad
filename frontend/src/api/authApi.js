@@ -28,18 +28,15 @@ export async function registerUser(name, email, phone, password) {
     });
 
     if (!response.ok) {
-      // Parse the custom ErrorResponse JSON object from Spring Boot
       const errorData = await response.json();
 
       const errorInstance = new Error(
         errorData.message || "Registration failed",
       );
-      // Attach the Java Map<String, String> fieldErrors to our JS error
       errorInstance.fieldErrors = errorData.fieldErrors;
       throw errorInstance;
     }
 
-    // Success text handler ("Registration Successful")
     return await response.text();
   } catch (error) {
     console.error("API Error:", error.message);

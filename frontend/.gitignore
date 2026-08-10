@@ -25,4 +25,4 @@ dist-ssr
 
 .scannerwork/
 
-frontend/coverage/
+/coverage/

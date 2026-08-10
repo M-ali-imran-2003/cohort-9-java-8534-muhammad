@@ -56,6 +56,7 @@ function Register() {
             Name
           </label>
           <input
+            id="name"
             className="form-input"
             type="text"
             placeholder="Name"
@@ -71,6 +72,7 @@ function Register() {
             Email
           </label>
           <input
+            id="email"
             className="form-input"
             type="email"
             placeholder="Email Address"
@@ -86,6 +88,7 @@ function Register() {
             Phone
           </label>
           <input
+            id="phone"
             className="form-input"
             type="text"
             placeholder="Phone Number"
@@ -101,6 +104,7 @@ function Register() {
             Password
           </label>
           <input
+            id="password"
             className="form-input"
             type="password"
             placeholder="Password"

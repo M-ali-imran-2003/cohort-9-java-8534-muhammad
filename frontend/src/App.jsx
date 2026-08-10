@@ -6,7 +6,8 @@ import Register from "./pages/Register.jsx";
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
     </Routes>
   );

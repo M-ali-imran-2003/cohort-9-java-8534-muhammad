@@ -42,6 +42,7 @@ function Login() {
             Email or Phone
           </label>
           <input
+            id="identifier"
             className="form-input"
             type="text"
             placeholder="Email or Phone"
@@ -59,6 +60,7 @@ function Login() {
             Password
           </label>
           <input
+            id="password"
             className="form-input"
             type="password"
             placeholder="Password"

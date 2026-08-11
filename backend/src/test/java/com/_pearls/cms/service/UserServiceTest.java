@@ -3,6 +3,7 @@ package com._pearls.cms.service;
 
 import com._pearls.cms.dto.*;
 import com._pearls.cms.entity.User;
+import com._pearls.cms.exception.InvalidRequestException;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
@@ -102,9 +103,10 @@ class UserServiceTest {
         ChangePasswordRequest request = new ChangePasswordRequest("12345678","12345678");
         User user = new User(id,"Momin","momin@gmail.com","03214556577","12345678", LocalDateTime.now());
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(encoder.matches(request.getCurrentPassword(),user.getPassword())).thenReturn(true);
 
         // Act
-        assertThrows(BadCredentialsException.class, () -> userService.changePassword(id,request));
+        assertThrows(InvalidRequestException.class, () -> userService.changePassword(id,request));
     }
 
     @Test

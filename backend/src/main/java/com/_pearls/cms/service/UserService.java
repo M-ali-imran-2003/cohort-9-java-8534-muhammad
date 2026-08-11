@@ -3,6 +3,7 @@ package com._pearls.cms.service;
 import com._pearls.cms.dto.ChangePasswordRequest;
 import com._pearls.cms.dto.ProfileResponse;
 import com._pearls.cms.entity.User;
+import com._pearls.cms.exception.InvalidRequestException;
 import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
 import org.slf4j.Logger;
@@ -42,30 +43,25 @@ public class UserService {
     }
 
     public String changePassword(Long id, ChangePasswordRequest request){
-        Optional<User> dbUser = userRepository.findById(
-                id
-        );
-        if(request.getCurrentPassword().equals(request.getNewPassword())){
-            log.warn("New Password and Current password cannot be same");
-            throw new BadCredentialsException("New Password and Current password cannot be same");
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("User not found");
+                    return new ResourceNotFoundException("User not found");
+                });
+
+        if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            log.warn("Current password does not match for user");
+            throw new BadCredentialsException("Current Password not valid");
         }
-        if (dbUser.isPresent())
-        {
-            User user = dbUser.get();
-            if(encoder.matches(request.getCurrentPassword(),user.getPassword()))
-            {
-                user.setPassword(encoder.encode(request.getNewPassword()));
-                userRepository.save(user);
-                log.warn("Password Changed Successfully");
-                return "Password Changed Successfully";
-            }
-            else{
-                throw new BadCredentialsException("Current Password not valid");
-            }
+
+        if (request.getCurrentPassword().equals(request.getNewPassword())) {
+            log.warn("New password same as current password for user");
+            throw new InvalidRequestException("New Password and Current Password cannot be the same");
         }
-        else {
-            log.warn("User not found");
-            throw new ResourceNotFoundException("User not found");
-        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        log.info("Password changed successfully for user");
+        return "Password Changed Successfully";
     }
 }

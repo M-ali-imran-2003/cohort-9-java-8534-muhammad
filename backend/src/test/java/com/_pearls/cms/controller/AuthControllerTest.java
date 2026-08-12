@@ -3,6 +3,7 @@ package com._pearls.cms.controller;
 import com._pearls.cms.dto.LoginRequest;
 import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.service.AuthService;
 import com._pearls.cms.service.JwtService;
@@ -40,13 +41,13 @@ class AuthControllerTest {
     @Test
     void registerSuccess() throws Exception {
         RegisterRequest request = new RegisterRequest("Momin", "momin@gmail.com", "03214125522", "12345678");
-        when(authService.register(any(RegisterRequest.class))).thenReturn("Registration Successful");
+        when(authService.register(any(RegisterRequest.class))).thenReturn(new SuccessResponse("Registration Successful"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("Registration Successful"));
+                .andExpect(content().string("{\"message\":\"Registration Successful\"}"));
     }
 
     @Test

@@ -2,6 +2,7 @@ package com._pearls.cms.controller;
 
 import com._pearls.cms.dto.ChangePasswordRequest;
 import com._pearls.cms.dto.ProfileResponse;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.service.UserService;
 import jakarta.validation.Valid;
@@ -28,8 +29,8 @@ public class UserController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<String> changePassword(@AuthenticationPrincipal User user, @Valid @RequestBody ChangePasswordRequest request){
-        String response = userService.changePassword(user.getId(),request);
+    public ResponseEntity<SuccessResponse> changePassword(@AuthenticationPrincipal User user, @Valid @RequestBody ChangePasswordRequest request){
+        SuccessResponse response = userService.changePassword(user.getId(),request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

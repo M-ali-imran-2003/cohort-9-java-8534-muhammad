@@ -2,6 +2,7 @@ package com._pearls.cms.service;
 
 import com._pearls.cms.dto.ChangePasswordRequest;
 import com._pearls.cms.dto.ProfileResponse;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.InvalidRequestException;
 import com._pearls.cms.exception.ResourceNotFoundException;
@@ -12,7 +13,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -42,7 +42,7 @@ public class UserService {
         }
     }
 
-    public String changePassword(Long id, ChangePasswordRequest request){
+    public SuccessResponse changePassword(Long id, ChangePasswordRequest request){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("User not found");
@@ -62,6 +62,6 @@ public class UserService {
         user.setPassword(encoder.encode(request.getNewPassword()));
         userRepository.save(user);
         log.info("Password changed successfully for user");
-        return "Password Changed Successfully";
+        return new SuccessResponse("Password Changed Successfully");
     }
 }

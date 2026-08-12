@@ -1,17 +1,5 @@
 import { API_BASE_URL } from "./config.js";
 
-async function parseResponseBody(response) {
-  const text = await response.text();
-  if (!text) {
-    return {};
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {};
-  }
-}
-
 export async function login(identifier, password) {
   const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: "POST",
@@ -19,10 +7,14 @@ export async function login(identifier, password) {
     body: JSON.stringify({ identifier, password }),
   });
 
-  const data = await parseResponseBody(response);
+  const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Provided credentials are incorrect");
+    const error = new Error(
+      data.message || "Provided credentials are incorrect",
+    );
+    if (data.fieldErrors) error.fieldErrors = data.fieldErrors;
+    throw error;
   }
 
   return data;
@@ -35,13 +27,13 @@ export async function registerUser(name, email, phone, password) {
     body: JSON.stringify({ name, email, phone, password }),
   });
 
-  if (!response.ok) {
-    const errorData = await parseResponseBody(response);
+  const data = await response.json();
 
-    const errorInstance = new Error(errorData.message || "Registration failed");
-    errorInstance.fieldErrors = errorData.fieldErrors;
-    throw errorInstance;
+  if (!response.ok) {
+    const error = new Error(data.message || "Registration failed");
+    if (data.fieldErrors) error.fieldErrors = data.fieldErrors;
+    throw error;
   }
 
-  return await response.text();
+  return data;
 }

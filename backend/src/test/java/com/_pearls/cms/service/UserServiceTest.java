@@ -74,11 +74,11 @@ class UserServiceTest {
         when(encoder.encode(request.getNewPassword())).thenReturn("encodedPassword123");
 
         // Act
-        String response = userService.changePassword(id, request);
+        SuccessResponse response = userService.changePassword(id, request);
 
         // Assert
         assertNotNull(response);
-        assertEquals("Password Changed Successfully", response);
+        assertEquals("Password Changed Successfully", response.getMessage());
         verify(userRepository, times(1)).save(any(User.class));
     }
 

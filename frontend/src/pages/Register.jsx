@@ -27,7 +27,7 @@ function Register() {
         data.phone,
         data.password,
       );
-      setSuccess(result);
+      setSuccess(result.message);
       reset();
 
       setTimeout(() => {

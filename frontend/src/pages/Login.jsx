@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { login } from "../api/authApi.js";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,15 @@ function Login() {
     formState: { errors },
   } = useForm({ mode: "onTouched" });
 
-  const [serverError, setServerError] = useState("");
+  const [serverError, setServerError] = useState(() => {
+    const authError = sessionStorage.getItem("authError");
+    if (authError) {
+      sessionStorage.removeItem("authError");
+      return authError;
+    }
+    return "";
+  });
+
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
@@ -24,6 +32,9 @@ function Login() {
       localStorage.setItem("token", result.token);
 
       setSuccess("Login Successful!");
+      setTimeout(() => {
+        navigate("/profile");
+      }, 800);
     } catch (err) {
       setServerError(err.message || "Login failed");
     }

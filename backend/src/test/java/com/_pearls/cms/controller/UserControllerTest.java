@@ -26,8 +26,7 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,7 +69,7 @@ class UserControllerTest {
         when(userService.changePassword(eq(TEST_USER_ID), any(ChangePasswordRequest.class)))
                 .thenReturn(new SuccessResponse("Password Changed Successfully"));
 
-        mockMvc.perform(put("/api/user/change-password")
+        mockMvc.perform(post("/api/user/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -80,7 +79,7 @@ class UserControllerTest {
     void changePasswordInvalidBody() throws Exception {
         ChangePasswordRequest invalidRequest = new ChangePasswordRequest("", "");
 
-        mockMvc.perform(put("/api/user/change-password")
+        mockMvc.perform(post("/api/user/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());

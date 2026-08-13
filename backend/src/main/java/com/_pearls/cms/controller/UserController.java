@@ -28,7 +28,7 @@ public class UserController {
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
-    @PutMapping("/change-password")
+    @PostMapping("/change-password")
     public ResponseEntity<SuccessResponse> changePassword(@AuthenticationPrincipal User user, @Valid @RequestBody ChangePasswordRequest request){
         SuccessResponse response = userService.changePassword(user.getId(),request);
 

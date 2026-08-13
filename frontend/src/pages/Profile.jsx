@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "../api/userApi.js";
 import Layout from "../components/Layout.jsx";
+import ChangePasswordModal from "../components/ChangePasswordModal.jsx";
 import "../styles/form.css";
 import "../styles/profile.css";
 
 function Profile() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
-  //   const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -54,7 +55,7 @@ function Profile() {
         <button
           type="button"
           className="form-button"
-          //   onClick={() => setShowModal(true)}
+          onClick={() => setShowModal(true)}
         >
           Change Password
         </button>
@@ -63,7 +64,7 @@ function Profile() {
         </button>
       </div>
 
-      {/* {showModal && <ChangePasswordModal onClose={() => setShowModal(false)} />} */}
+      {showModal && <ChangePasswordModal onClose={() => setShowModal(false)} />}
     </Layout>
   );
 }

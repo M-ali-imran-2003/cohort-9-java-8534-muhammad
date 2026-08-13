@@ -9,7 +9,6 @@ import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +44,13 @@ public class UserService {
     public SuccessResponse changePassword(Long id, ChangePasswordRequest request){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("User not found");
-                    return new ResourceNotFoundException("User not found");
+                    log.warn("User id not found");
+                    return new ResourceNotFoundException("User not found with the id");
                 });
 
         if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {
             log.warn("Current password does not match for user");
-            throw new BadCredentialsException("Current Password not valid");
+            throw new InvalidRequestException("Current Password not valid");
         }
 
         if (request.getCurrentPassword().equals(request.getNewPassword())) {

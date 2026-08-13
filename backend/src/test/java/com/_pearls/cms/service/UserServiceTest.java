@@ -120,6 +120,6 @@ class UserServiceTest {
         when(encoder.matches(request.getCurrentPassword(),user.getPassword())).thenReturn(false);
 
         // Act
-        assertThrows(BadCredentialsException.class, () -> userService.changePassword(id,request));
+        assertThrows(InvalidRequestException.class, () -> userService.changePassword(id,request));
     }
 }

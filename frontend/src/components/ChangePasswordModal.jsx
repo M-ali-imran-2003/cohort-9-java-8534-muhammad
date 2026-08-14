@@ -1,10 +1,12 @@
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, useRef, useEffect } from "react-hook-form";
 import { useState } from "react";
 import { changePassword } from "../api/userApi.js";
 import "../styles/modal.css";
 import "../styles/form.css";
 
 function ChangePasswordModal({ onClose }) {
+  const modalRef = useRef(null);
+  const previousFocusRef = useRef(null);
   const {
     register,
     handleSubmit,
@@ -21,6 +23,44 @@ function ChangePasswordModal({ onClose }) {
     name: "newPassword",
     defaultValue: "",
   });
+
+  const handleCancel = () => {
+    reset();
+    onClose();
+  };
+
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement;
+    modalRef.current?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCancel();
+        return;
+      }
+      if (e.key === "Tab") {
+        const focusable = modalRef.current.querySelectorAll(
+          "input, button, [tabindex]:not([tabindex='-1'])",
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus();
+    };
+  }, []);
 
   const onSubmit = async (data) => {
     setServerError("");
@@ -40,14 +80,16 @@ function ChangePasswordModal({ onClose }) {
     }
   };
 
-  const handleCancel = () => {
-    reset();
-    onClose();
-  };
-
   return (
     <div className="modal-overlay">
-      <div className="modal-box">
+      <div
+        className="modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="change-password-title"
+        tabIndex={-1}
+        ref={modalRef}
+      >
         <h2 className="form-title">Change Password</h2>
 
         {serverError && <p className="form-message-error">{serverError}</p>}

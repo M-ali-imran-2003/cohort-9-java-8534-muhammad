@@ -14,14 +14,14 @@ function Sidebar() {
         >
           Profile
         </NavLink>
-        <NavLink
+        {/* <NavLink
           to="/contacts"
           className={({ isActive }) =>
             isActive ? "sidebar-link active" : "sidebar-link"
           }
         >
           Contacts
-        </NavLink>
+        </NavLink> */}
       </nav>
     </aside>
   );

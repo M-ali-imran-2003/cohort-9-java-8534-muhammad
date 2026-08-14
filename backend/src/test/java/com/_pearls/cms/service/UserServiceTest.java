@@ -9,6 +9,7 @@ import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -64,13 +65,12 @@ class UserServiceTest {
 
     @Test
     void changePasswordSuccess() {
-
         // Arrange
         Long id = 1005L;
-        ChangePasswordRequest request = new ChangePasswordRequest("12345678","12344321");
-        User user = new User(id,"Momin","momin@gmail.com","03214556577","12345678", LocalDateTime.now());
+        ChangePasswordRequest request = new ChangePasswordRequest("12345678", "12344321");
+        User user = new User(id, "Momin", "momin@gmail.com", "03214556577", "12345678", LocalDateTime.now());
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
-        when(encoder.matches(request.getCurrentPassword(),user.getPassword())).thenReturn(true);
+        when(encoder.matches(request.getCurrentPassword(), user.getPassword())).thenReturn(true);
         when(encoder.encode(request.getNewPassword())).thenReturn("encodedPassword123");
 
         // Act
@@ -79,7 +79,11 @@ class UserServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("Password Changed Successfully", response.getMessage());
-        verify(userRepository, times(1)).save(any(User.class));
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository, times(1)).save(captor.capture());
+        assertEquals("encodedPassword123", captor.getValue().getPassword());
+        verify(encoder, times(1)).encode(request.getNewPassword());
     }
 
     @Test

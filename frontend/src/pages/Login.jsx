@@ -12,10 +12,14 @@ function Login() {
   } = useForm({ mode: "onTouched" });
 
   const [serverError, setServerError] = useState(() => {
-    const authError = sessionStorage.getItem("authError");
-    if (authError) {
-      sessionStorage.removeItem("authError");
-      return authError;
+    try {
+      const authError = sessionStorage.getItem("authError");
+      if (authError) {
+        sessionStorage.removeItem("authError");
+        return authError;
+      }
+    } catch {
+      return "";
     }
     return "";
   });

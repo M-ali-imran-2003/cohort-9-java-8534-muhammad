@@ -1,5 +1,5 @@
-import { useForm, useWatch, useRef, useEffect } from "react-hook-form";
-import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { useState, useRef, useEffect } from "react";
 import { changePassword } from "../api/userApi.js";
 import "../styles/modal.css";
 import "../styles/form.css";

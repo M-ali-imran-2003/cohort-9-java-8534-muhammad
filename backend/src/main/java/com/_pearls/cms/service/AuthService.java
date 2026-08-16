@@ -3,6 +3,7 @@ package com._pearls.cms.service;
 import com._pearls.cms.dto.LoginRequest;
 import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.repository.UserRepository;
@@ -30,7 +31,7 @@ public class AuthService {
         this.encoder = encoder;
     }
 
-    public String register(RegisterRequest registerRequest) {
+    public SuccessResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
                 log.warn("User with email already exists");
                 throw new ResourceAlreadyExistsException("User with the email already exist.");
@@ -53,7 +54,7 @@ public class AuthService {
             throw new ResourceAlreadyExistsException("User with this email or phone already exists.");
         }
         log.info("User registered successfully");
-        return "Registration Successful";
+        return new SuccessResponse("Registration Successful");
     }
 
     public LoginResponse login(LoginRequest loginRequest) {

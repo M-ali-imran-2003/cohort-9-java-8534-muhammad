@@ -3,6 +3,7 @@ package com._pearls.cms.controller;
 import com._pearls.cms.dto.LoginRequest;
 import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest registerRequest)
+    public ResponseEntity<SuccessResponse> register(@Valid @RequestBody RegisterRequest registerRequest)
     {
-          String response =  authService.register(registerRequest);
+        SuccessResponse response =  authService.register(registerRequest);
 
             return new ResponseEntity<>(response,HttpStatus.CREATED);
     }

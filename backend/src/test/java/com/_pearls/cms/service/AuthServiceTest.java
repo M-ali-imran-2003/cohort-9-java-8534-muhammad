@@ -3,6 +3,7 @@ package com._pearls.cms.service;
 import com._pearls.cms.dto.LoginRequest;
 import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.repository.UserRepository;
@@ -43,11 +44,11 @@ class AuthServiceTest {
         when(encoder.encode(request.getPassword())).thenReturn("encodedPassword123");
 
         // Act
-        String created = authService.register(request);
+        SuccessResponse created = authService.register(request);
 
         // Assert
         assertNotNull(created);
-        assertEquals("Registration Successful", created);
+        assertEquals("Registration Successful", created.getMessage());
         verify(userRepository, times(1)).save(any(User.class));
     }
 

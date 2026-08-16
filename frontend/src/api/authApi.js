@@ -1,47 +1,31 @@
-import { API_BASE_URL } from "./config.js";
-
-async function parseResponseBody(response) {
-  const text = await response.text();
-  if (!text) {
-    return {};
-  }
-  try {
-    return JSON.parse(text);
-  } catch {
-    return {};
-  }
-}
+import axiosClient from "./axiosClient.js";
 
 export async function login(identifier, password) {
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ identifier, password }),
-  });
-
-  const data = await parseResponseBody(response);
-
-  if (!response.ok) {
-    throw new Error(data.message || "Provided credentials are incorrect");
+  try {
+    const response = await axiosClient.post("/api/auth/login", {
+      identifier,
+      password,
+    });
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.message || "Invalid Credentials";
+    throw new Error(message, { cause: error });
   }
-
-  return data;
 }
 
 export async function registerUser(name, email, phone, password) {
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, phone, password }),
-  });
-
-  if (!response.ok) {
-    const errorData = await parseResponseBody(response);
-
-    const errorInstance = new Error(errorData.message || "Registration failed");
-    errorInstance.fieldErrors = errorData.fieldErrors;
-    throw errorInstance;
+  try {
+    const response = await axiosClient.post("/api/auth/register", {
+      name,
+      email,
+      phone,
+      password,
+    });
+    return response.data;
+  } catch (error) {
+    const data = error.response?.data || {};
+    const err = new Error(data.message || "Registration failed");
+    err.fieldErrors = data.fieldErrors;
+    throw err;
   }
-
-  return await response.text();
 }

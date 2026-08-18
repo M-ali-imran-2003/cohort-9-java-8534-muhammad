@@ -1,5 +1,6 @@
 package com._pearls.cms.service;
 
+import com._pearls.cms.dto.ContactListResponse;
 import com._pearls.cms.repository.ContactRepository;
 import com._pearls.cms.repository.EmailRepository;
 import com._pearls.cms.repository.PhoneRepository;
@@ -20,4 +21,5 @@ public class ContactService {
         this.phoneRepository = phoneRepository;
         this.userRepository = userRepository;
     }
+
 }

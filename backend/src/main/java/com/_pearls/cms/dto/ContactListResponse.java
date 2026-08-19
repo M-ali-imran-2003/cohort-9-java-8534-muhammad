@@ -16,6 +16,7 @@ public class ContactListResponse {
         this.lastName = lastName;
         this.createdAt = createdAt;
     }
+    public ContactListResponse(){}
 
     public Long getId() {
         return id;

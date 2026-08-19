@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "contact_emails ")
+@Entity(name = "contact_emails")
 public class Email {
 
     @Id
@@ -59,4 +59,6 @@ public class Email {
         this.label = label;
         this.contactId = contactId;
     }
+
+    public Email(){}
 }

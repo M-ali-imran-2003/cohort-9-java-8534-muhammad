@@ -1,7 +1,13 @@
 package com._pearls.cms.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class PhoneDto {
+
+    @NotBlank(message = "phone label is required")
     private String label;
+
+    @NotBlank(message = "phone is required")
     private String phone;
 
     public String getLabel() {

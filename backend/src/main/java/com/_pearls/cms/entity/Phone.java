@@ -58,5 +58,11 @@ public class Phone {
         this.contactId = contactId;
     }
 
+    public Phone(String phone, String label, Long contactId) {
+        this.phone = phone;
+        this.label = label;
+        this.contactId = contactId;
+    }
+
     public Phone(){}
 }

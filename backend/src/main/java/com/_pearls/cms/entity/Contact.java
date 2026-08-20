@@ -75,8 +75,7 @@ public class Contact {
         this.createdAt = createdAt;
     }
 
-    public Contact(Long id, String title, String firstName, String lastName, Long userId, LocalDateTime createdAt) {
-        this.id = id;
+    public Contact(String title, String firstName, String lastName, Long userId, LocalDateTime createdAt) {
         this.title = title;
         this.firstName = firstName;
         this.lastName = lastName;

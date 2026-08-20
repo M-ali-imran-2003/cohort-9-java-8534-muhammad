@@ -59,6 +59,12 @@ public class Email {
         this.label = label;
         this.contactId = contactId;
     }
+    public Email(String email, String label, Long contactId) {
+        this.email = email;
+        this.label = label;
+        this.contactId = contactId;
+    }
+
 
     public Email(){}
 }

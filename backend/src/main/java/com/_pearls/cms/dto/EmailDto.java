@@ -25,4 +25,11 @@ public class EmailDto {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public EmailDto(String label, String email) {
+        this.label = label;
+        this.email = email;
+    }
+
+    public EmailDto(){}
 }

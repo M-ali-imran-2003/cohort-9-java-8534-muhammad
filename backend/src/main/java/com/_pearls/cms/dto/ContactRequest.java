@@ -65,5 +65,14 @@ public class ContactRequest {
         this.lastName = lastName;
     }
 
+    public ContactRequest(String title, String firstName, String lastName, List<EmailDto> emails, List<PhoneDto> phones) {
+        this.title = title;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.emails = emails;
+        this.phones = phones;
+    }
 
+    public ContactRequest() {
+    }
 }

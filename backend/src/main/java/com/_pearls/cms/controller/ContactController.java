@@ -4,7 +4,6 @@ import com._pearls.cms.dto.ContactListResponse;
 import com._pearls.cms.dto.ContactRequest;
 import com._pearls.cms.dto.ContactResponse;
 import com._pearls.cms.dto.SuccessResponse;
-import com._pearls.cms.entity.Contact;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.service.ContactService;
 import jakarta.validation.Valid;
@@ -27,14 +26,14 @@ public class ContactController {
     @GetMapping("/get-all-contacts")
     public ResponseEntity<Page<ContactListResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String search,
             @AuthenticationPrincipal User user) {
-        Page<ContactListResponse> contacts = contactService.findAllContact(user.getId(),page);
-
-        return new ResponseEntity<>(contacts,HttpStatus.OK);
+        Page<ContactListResponse> contacts = contactService.findAllContacts(user.getId(), page, search);
+        return new ResponseEntity<>(contacts, HttpStatus.OK);
     }
 
     @GetMapping("/get-contact/{contactId}")
-    public ResponseEntity<ContactResponse> getAll(
+    public ResponseEntity<ContactResponse> get(
             @PathVariable Long contactId,
             @AuthenticationPrincipal User user) {
         ContactResponse contact = contactService.findContact(user.getId(),contactId);

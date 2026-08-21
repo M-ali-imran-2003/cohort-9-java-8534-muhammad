@@ -25,4 +25,10 @@ public class PhoneDto {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public PhoneDto(String label, String phone) {
+        this.label = label;
+        this.phone = phone;
+    }
+    public PhoneDto(){}
 }

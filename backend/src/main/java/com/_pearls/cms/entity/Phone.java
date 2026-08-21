@@ -2,7 +2,8 @@ package com._pearls.cms.entity;
 
 import jakarta.persistence.*;
 
-@Entity(name = "contact_phones")
+@Entity
+@Table(name = "contact_phones")
 public class Phone {
 
     @Id

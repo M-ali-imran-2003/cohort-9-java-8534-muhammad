@@ -1,10 +1,11 @@
 package com._pearls.cms.service;
 
 
-import com._pearls.cms.dto.*;
+import com._pearls.cms.dto.ChangePasswordRequest;
+import com._pearls.cms.dto.ProfileResponse;
+import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.InvalidRequestException;
-import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -13,16 +14,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {

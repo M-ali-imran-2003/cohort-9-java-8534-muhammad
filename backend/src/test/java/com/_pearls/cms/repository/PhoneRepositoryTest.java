@@ -1,6 +1,5 @@
 package com._pearls.cms.repository;
 
-import com._pearls.cms.entity.Email;
 import com._pearls.cms.entity.Phone;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,9 +2,8 @@ package com._pearls.cms.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
-
-@Entity(name = "contact_emails")
+@Entity
+@Table(name = "contact_emails")
 public class Email {
 
     @Id

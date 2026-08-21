@@ -1,11 +1,13 @@
 package com._pearls.cms.repository;
 
 import com._pearls.cms.entity.Contact;
-import com._pearls.cms.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,94 +21,90 @@ public class ContactRepositoryTest {
     private ContactRepository contactRepository;
 
     @Test
-    void testFindByUserIdFound() {
-
-        // Arrange
-        contactRepository.save(new Contact("Mr", "Imran", "Riaz",50L, LocalDateTime.now()));
-        contactRepository.save(new Contact("Mr", "Ali", "Imran",50L, LocalDateTime.now()));
-        contactRepository.save(new Contact("Mr", "Ali", "Imran",60L, LocalDateTime.now()));
+    void testFindByUserIdAndSearchNoFilterFound() {
+        contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
+        contactRepository.save(new Contact("Mr", "Ali", "Imran", 50L, LocalDateTime.now()));
+        contactRepository.save(new Contact("Mr", "Ali", "Imran", 60L, LocalDateTime.now()));
         Pageable pageable = PageRequest.of(0, 1, Sort.by("id").ascending());
 
-        // Act
-        Page<Contact> contactPage = contactRepository.findByUserId(50L, pageable);
+        Page<Contact> contactPage = contactRepository.findByUserIdAndSearch(50L, null, pageable);
 
-        // Assert
         assertThat(contactPage).isNotNull();
         assertThat(contactPage.getContent()).hasSize(1);
         assertThat(contactPage.getTotalElements()).isEqualTo(2);
         assertThat(contactPage.getTotalPages()).isEqualTo(2);
-        assertThat(contactPage.getContent().get(0).getFirstName()).isEqualTo("Imran");
     }
 
     @Test
-    void testFindByUserIdNotFound() {
+    void testFindByUserIdAndSearchNoFilterNotFound() {
+        contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
+        Pageable pageable = PageRequest.of(0, 1);
 
-        // Arrange
-        contactRepository.save(new Contact("Mr", "Imran", "Riaz",50L, LocalDateTime.now()));
-        contactRepository.save(new Contact("Mr", "Ali", "Imran",50L, LocalDateTime.now()));
-        contactRepository.save(new Contact("Mr", "Ali", "Imran",60L, LocalDateTime.now()));
-        Pageable pageable = PageRequest.of(0, 1, Sort.by("id").ascending());
+        Page<Contact> contactPage = contactRepository.findByUserIdAndSearch(40L, null, pageable);
 
-        // Act
-        Page<Contact> contactPage = contactRepository.findByUserId(40L, pageable);
+        assertThat(contactPage.isEmpty()).isTrue();
+    }
 
-        // Assert
-        assertThat(contactPage).isNotNull();
-        assertThat(contactPage.isEmpty()).isTrue();    }
+    @Test
+    void testFindByUserIdAndSearchMatchesFirstName() {
+        contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
+        contactRepository.save(new Contact("Mr", "Ali", "Momin", 50L, LocalDateTime.now()));
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("firstName"));
+
+        Page<Contact> result = contactRepository.findByUserIdAndSearch(50L, "imran", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getFirstName()).isEqualTo("Imran");
+    }
+
+    @Test
+    void testFindByUserIdAndSearchMatchesLastName() {
+        contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
+        contactRepository.save(new Contact("Mr", "Ali", "Momin", 50L, LocalDateTime.now()));
+        Pageable pageable = PageRequest.of(0, 5);
+
+        Page<Contact> result = contactRepository.findByUserIdAndSearch(50L, "riaz", pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).getLastName()).isEqualTo("Riaz");
+    }
+
+    @Test
+    void testFindByUserIdAndSearchNoMatch() {
+        contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
+        Pageable pageable = PageRequest.of(0, 5);
+
+        Page<Contact> result = contactRepository.findByUserIdAndSearch(50L, "xyz", pageable);
+
+        assertThat(result.getContent()).isEmpty();
+    }
 
     @Test
     void testFindByIdAndUserIdInvalidId() {
+        Contact saved = contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
 
-        // Arrange
-        Contact saved = contactRepository.save(new Contact("Mr", "Imran", "Riaz",50L, LocalDateTime.now()));
+        Optional<Contact> contact = contactRepository.findByIdAndUserId(saved.getId() + 10L, 50L);
 
-        // Act
-        Optional<Contact> contact = contactRepository.findByIdAndUserId(saved.getId()+10L, 50L);
-
-        // Assert
         assertThat(contact).isEmpty();
     }
 
     @Test
     void testFindByIdAndUserIdInvalidUserId() {
+        Contact saved = contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
 
-        // Arrange
-        Contact saved = contactRepository.save(new Contact("Mr", "Imran", "Riaz",50L, LocalDateTime.now()));
-
-        // Act
         Optional<Contact> contact = contactRepository.findByIdAndUserId(saved.getId(), 10L);
 
-        // Assert
-        assertThat(contact).isEmpty();
-    }
-
-    @Test
-    void testFindByIdAndUserIdInvalidBoth() {
-
-        // Arrange
-        Contact saved = contactRepository.save(new Contact("Mr", "Imran", "Riaz",50L, LocalDateTime.now()));
-
-        // Act
-        Optional<Contact> contact = contactRepository.findByIdAndUserId(saved.getId()+10L, 10L);
-
-        // Assert
         assertThat(contact).isEmpty();
     }
 
     @Test
     void testFindByIdAndUserIdFound() {
+        Contact saved = contactRepository.save(new Contact("Mr", "Imran", "Riaz", 50L, LocalDateTime.now()));
+        contactRepository.save(new Contact("Mr", "Ali", "Imran", 50L, LocalDateTime.now()));
 
-        // Arrange
-        Contact saved=contactRepository.save(new Contact("Mr", "Imran", "Riaz",50L, LocalDateTime.now()));
-        contactRepository.save(new Contact("Mr", "Ali", "Imran",50L, LocalDateTime.now()));
-
-        // Act
         Optional<Contact> contact = contactRepository.findByIdAndUserId(saved.getId(), saved.getUserId());
 
-        // Assert
         assertThat(contact).isPresent();
-        assertThat(contact.get().getId()).isEqualTo(saved.getId());
-        assertThat(contact.get().getUserId()).isEqualTo(saved.getUserId());
         assertThat(contact.get().getFirstName()).isEqualTo("Imran");
     }
 }

@@ -17,7 +17,7 @@ public class Phone {
     @Column(name = "phone_label")
     private String label;
 
-    @Column(name = "contact_id")
+    @Column(name = "contact_id",nullable = false)
     private Long contactId;
 
     public Long getId() {

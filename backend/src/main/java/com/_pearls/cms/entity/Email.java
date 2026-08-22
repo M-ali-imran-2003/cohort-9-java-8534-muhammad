@@ -17,7 +17,7 @@ public class Email {
     @Column(name = "email_label")
     private String label;
 
-    @Column(name = "contact_id")
+    @Column(name = "contact_id",nullable = false)
     private Long contactId;
 
     public Long getId() {

@@ -3,6 +3,7 @@ package com._pearls.cms.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -17,13 +18,11 @@ public class ContactRequest {
     @NotBlank(message = "last name is required")
     private String lastName;
 
-    @NotEmpty
-    @Valid
-    private List<EmailDto> emails;
+    @NotEmpty(message = "At least one email is required")
+    private List<@NotNull @Valid EmailDto> emails;
 
-    @NotEmpty
-    @Valid
-    private List<PhoneDto> phones;
+    @NotEmpty(message = "At least one phone is required")
+    private List<@NotNull @Valid PhoneDto> phones;
 
     public List<EmailDto> getEmails() {
         return emails;

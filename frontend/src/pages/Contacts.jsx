@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getAllContacts, getContact } from "../api/contactApi.js";
 import Layout from "../components/Layout.jsx";
 import ContactFormModal from "../components/ContactFormModal.jsx";
@@ -19,14 +19,28 @@ function Contacts() {
   const [viewingId, setViewingId] = useState(null);
   const [deletingContact, setDeletingContact] = useState(null);
 
+  const requestIdRef = useRef(0);
+
   const loadContacts = useCallback(() => {
+    const currentRequestId = ++requestIdRef.current;
+
     getAllContacts(page, search)
       .then((data) => {
+        if (currentRequestId !== requestIdRef.current) return;
+
+        if (data.totalPages > 0 && page >= data.totalPages) {
+          setPage(data.totalPages - 1); // triggers a re-fetch via the effect below
+          return;
+        }
+
         setContacts(data.content);
         setTotalPages(data.totalPages);
         setError("");
       })
-      .catch((err) => setError(err.message));
+      .catch((err) => {
+        if (currentRequestId !== requestIdRef.current) return;
+        setError(err.message);
+      });
   }, [page, search]);
 
   useEffect(() => {

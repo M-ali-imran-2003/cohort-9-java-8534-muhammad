@@ -4,6 +4,7 @@ import com._pearls.cms.dto.*;
 import com._pearls.cms.entity.Contact;
 import com._pearls.cms.entity.Email;
 import com._pearls.cms.entity.Phone;
+import com._pearls.cms.exception.InvalidRequestException;
 import com._pearls.cms.exception.ResourceNotFoundException;
 import com._pearls.cms.repository.ContactRepository;
 import com._pearls.cms.repository.EmailRepository;
@@ -74,13 +75,16 @@ public class ContactService {
     }
 
     public Page<ContactListResponse> findAllContacts(Long userId, int page, String search) {
+        if (page < 0) {
+            throw new InvalidRequestException("Page number cannot be negative");
+        }
         boolean exists = userRepository.existsById(userId);
         if (!exists) {
             log.warn("User with id not found");
             throw new ResourceNotFoundException("User not found with the id");
         }
 
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("firstName", "lastName"));
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("firstName", "lastName", "id"));
         Page<Contact> contacts = contactRepository.findByUserIdAndSearch(userId, search, pageable);
 
         return contacts.map(contact -> {

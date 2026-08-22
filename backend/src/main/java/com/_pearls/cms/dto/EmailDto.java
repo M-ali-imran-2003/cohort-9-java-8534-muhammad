@@ -1,5 +1,6 @@
 package com._pearls.cms.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class EmailDto {
@@ -8,6 +9,7 @@ public class EmailDto {
     private String label;
 
     @NotBlank(message = "email is required")
+    @Email(message = "Please provide a valid email address")
     private String email;
 
     public String getLabel() {

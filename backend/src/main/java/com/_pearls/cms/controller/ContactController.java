@@ -5,6 +5,7 @@ import com._pearls.cms.dto.ContactRequest;
 import com._pearls.cms.dto.ContactResponse;
 import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
+import com._pearls.cms.exception.InvalidRequestException;
 import com._pearls.cms.service.ContactService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,9 @@ public class ContactController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) String search,
             @AuthenticationPrincipal User user) {
+        if (page < 0) {
+            throw new InvalidRequestException("Page number cannot be negative");
+        }
         Page<ContactListResponse> contacts = contactService.findAllContacts(user.getId(), page, search);
         return new ResponseEntity<>(contacts, HttpStatus.OK);
     }

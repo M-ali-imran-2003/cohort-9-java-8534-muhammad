@@ -11,7 +11,7 @@ function ContactFormModal({ mode, initialData, onClose, onSaved }) {
     control,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     mode: "onTouched",
     defaultValues: {
@@ -185,8 +185,12 @@ function ContactFormModal({ mode, initialData, onClose, onSaved }) {
           </button>
 
           <div className="modal-actions">
-            <button type="submit" className="form-button">
-              Save
+            <button
+              type="submit"
+              className="form-button"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save"}
             </button>
             <button
               type="button"

@@ -30,7 +30,7 @@ function Contacts() {
         if (currentRequestId !== requestIdRef.current) return;
 
         if (data.totalPages > 0 && page >= data.totalPages) {
-          setPage(data.totalPages - 1); // triggers a re-fetch via the effect below
+          setPage(data.totalPages - 1);
           return;
         }
 
@@ -58,7 +58,7 @@ function Contacts() {
     const currentRequestId = ++editRequestIdRef.current;
     try {
       const data = await getContact(contactId);
-      if (currentRequestId !== editRequestIdRef.current) return; // stale, ignore
+      if (currentRequestId !== editRequestIdRef.current) return;
       setFormModal({ mode: "edit", data });
     } catch (err) {
       if (currentRequestId !== editRequestIdRef.current) return;
@@ -66,8 +66,18 @@ function Contacts() {
     }
   };
 
-  const closeFormModal = () => setFormModal(null);
+  const closeFormModal = () => {
+    editRequestIdRef.current++;
+    setFormModal(null);
+  };
+
+  const openCreate = () => {
+    editRequestIdRef.current++;
+    setFormModal({ mode: "create" });
+  };
+
   const handleSaved = () => {
+    editRequestIdRef.current++;
     setFormModal(null);
     loadContacts();
   };
@@ -87,11 +97,7 @@ function Contacts() {
             Search
           </button>
         </form>
-        <button
-          className="form-button"
-          type="button"
-          onClick={() => setFormModal({ mode: "create" })}
-        >
+        <button className="form-button" type="button" onClick={openCreate}>
           + Add Contact
         </button>
       </div>

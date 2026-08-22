@@ -9,7 +9,7 @@ function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onTouched" });
+  } = useForm({ mode: "onChange" });
 
   const [serverError, setServerError] = useState(() => {
     try {
@@ -53,7 +53,7 @@ function Login() {
       localStorage.setItem("token", result.token);
       setSuccess("Login Successful! Redirecting...");
       redirectTimerRef.current = setTimeout(() => {
-        navigate("/profile");
+        navigate("/contacts");
       }, 800);
     } catch (err) {
       setServerError(err.message || "Login failed");

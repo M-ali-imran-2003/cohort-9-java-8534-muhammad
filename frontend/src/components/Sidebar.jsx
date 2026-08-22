@@ -7,6 +7,14 @@ function Sidebar() {
       <div className="sidebar-brand">CMS</div>
       <nav className="sidebar-nav">
         <NavLink
+          to="/contacts"
+          className={({ isActive }) =>
+            isActive ? "sidebar-link active" : "sidebar-link"
+          }
+        >
+          Contacts
+        </NavLink>
+        <NavLink
           to="/profile"
           className={({ isActive }) =>
             isActive ? "sidebar-link active" : "sidebar-link"
@@ -14,14 +22,6 @@ function Sidebar() {
         >
           Profile
         </NavLink>
-        {/* <NavLink
-          to="/contacts"
-          className={({ isActive }) =>
-            isActive ? "sidebar-link active" : "sidebar-link"
-          }
-        >
-          Contacts
-        </NavLink> */}
       </nav>
     </aside>
   );

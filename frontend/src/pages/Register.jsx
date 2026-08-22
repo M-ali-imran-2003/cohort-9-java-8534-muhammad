@@ -10,7 +10,7 @@ function Register() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({ mode: "onTouched" });
+  } = useForm({ mode: "onChange" });
 
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState("");

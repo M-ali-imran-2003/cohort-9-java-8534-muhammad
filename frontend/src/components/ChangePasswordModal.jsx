@@ -13,7 +13,7 @@ function ChangePasswordModal({ onClose }) {
     formState: { errors },
     reset,
     control,
-  } = useForm({ mode: "onTouched" });
+  } = useForm({ mode: "onChange" });
 
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState("");

@@ -20,6 +20,7 @@ function Contacts() {
   const [deletingContact, setDeletingContact] = useState(null);
 
   const requestIdRef = useRef(0);
+  const editRequestIdRef = useRef(0);
 
   const loadContacts = useCallback(() => {
     const currentRequestId = ++requestIdRef.current;
@@ -54,10 +55,13 @@ function Contacts() {
   };
 
   const openEdit = async (contactId) => {
+    const currentRequestId = ++editRequestIdRef.current;
     try {
       const data = await getContact(contactId);
+      if (currentRequestId !== editRequestIdRef.current) return; // stale, ignore
       setFormModal({ mode: "edit", data });
     } catch (err) {
+      if (currentRequestId !== editRequestIdRef.current) return;
       setError(err.message);
     }
   };

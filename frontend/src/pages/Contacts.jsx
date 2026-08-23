@@ -14,7 +14,7 @@ function Contacts() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
-
+  const [editError, setEditError] = useState("");
   const [formModal, setFormModal] = useState(null);
   const [viewingId, setViewingId] = useState(null);
   const [deletingContact, setDeletingContact] = useState(null);
@@ -56,13 +56,14 @@ function Contacts() {
 
   const openEdit = async (contactId) => {
     const currentRequestId = ++editRequestIdRef.current;
+    setEditError("");
     try {
       const data = await getContact(contactId);
       if (currentRequestId !== editRequestIdRef.current) return;
       setFormModal({ mode: "edit", data });
     } catch (err) {
       if (currentRequestId !== editRequestIdRef.current) return;
-      setError(err.message);
+      setEditError(err.message);
     }
   };
 
@@ -103,7 +104,7 @@ function Contacts() {
       </div>
 
       {error && <p className="form-message-error">{error}</p>}
-
+      {editError && <p className="form-message-error">{editError}</p>}
       {contacts.length === 0 ? (
         <div className="contacts-empty">No contacts found.</div>
       ) : (

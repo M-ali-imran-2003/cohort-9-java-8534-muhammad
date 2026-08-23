@@ -69,11 +69,13 @@ function Contacts() {
 
   const closeFormModal = () => {
     editRequestIdRef.current++;
+    setEditError("");
     setFormModal(null);
   };
 
   const openCreate = () => {
     editRequestIdRef.current++;
+    setEditError("");
     setFormModal({ mode: "create" });
   };
 
@@ -129,7 +131,10 @@ function Contacts() {
                   <button
                     type="button"
                     className="contact-action-btn"
-                    onClick={() => setViewingId(c.id)}
+                    onClick={() => {
+                      editRequestIdRef.current++;
+                      setViewingId(c.id);
+                    }}
                   >
                     View
                   </button>
@@ -143,7 +148,10 @@ function Contacts() {
                   <button
                     type="button"
                     className="contact-action-btn danger"
-                    onClick={() => setDeletingContact(c)}
+                    onClick={() => {
+                      editRequestIdRef.current++;
+                      setDeletingContact(c);
+                    }}
                   >
                     Delete
                   </button>

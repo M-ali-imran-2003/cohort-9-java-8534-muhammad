@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,6 +132,25 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorResponse> handleIOException(IOException ex, HttpServletRequest request) {
+
+        if (ex.getClass().getName().contains("ClientAbortException") ||
+                (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("broken pipe"))) {
+            logger.warn("Client disconnected abruptly during data streaming: {}", ex.getMessage());
+            return null;
+        }
+
+        logger.error("IO Exception occurred before/during processing: {}", ex.getMessage(), ex);
+
+        ErrorResponse error = new ErrorResponse(
+                "IO_FAILED",
+                "Failed to do the operation",
+                request.getRequestURI()
+        );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

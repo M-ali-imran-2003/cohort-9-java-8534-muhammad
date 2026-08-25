@@ -7,12 +7,15 @@ import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.InvalidRequestException;
 import com._pearls.cms.service.ContactService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequestMapping("api/contacts")
 @RestController
@@ -70,5 +73,12 @@ public class ContactController {
         SuccessResponse response = contactService.updateContact(contactId, user.getId(), contactRequest);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/export-contacts")
+    public void export(@AuthenticationPrincipal User user, HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"contacts.csv\"");
+        contactService.exportContacts(user.getId(), response.getWriter());
     }
 }

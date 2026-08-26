@@ -34,6 +34,12 @@ function ContactDetailModal({ contactId, onClose }) {
               </span>
             </div>
             <div className="view-field">
+              <span className="view-label">Created At</span>
+              <span className="view-value">
+                {new Date(contact.createdAt).toLocaleDateString("en-GB")}
+              </span>
+            </div>
+            <div className="view-field">
               <span className="view-label">Emails</span>
               {contact.emails.map((e, i) => (
                 <div className="view-value" key={i}>

@@ -12,7 +12,9 @@ import com._pearls.cms.repository.PhoneRepository;
 import com._pearls.cms.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -21,13 +23,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ContactService {
@@ -91,7 +91,8 @@ public class ContactService {
             throw new ResourceNotFoundException("User not found with the id");
         }
 
-        Pageable pageable = PageRequest.of(page, 5, Sort.by("firstName", "lastName", "id"));
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Order.desc("createdAt"),
+                Sort.Order.desc("id")));
         Page<Contact> contacts = contactRepository.findByUserIdAndSearch(userId, search, pageable);
 
         return contacts.map(contact -> {
@@ -268,5 +269,62 @@ public class ContactService {
                 printer.printRecord(row);
             }
         }
+    }
+    public SuccessResponse importContacts(Long userId, InputStream inputStream) throws IOException {
+        Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+
+        CSVFormat format = CSVFormat.DEFAULT.builder()
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .build();
+
+        CSVParser parser = new CSVParser(reader, format);
+
+        Set<String> headerNames = new HashSet<>(parser.getHeaderNames());
+
+        int emailCount = 0;
+        while (headerNames.contains("Email" + (emailCount + 1) + "_Label")) {
+            emailCount++;
+        }
+
+        int phoneCount = 0;
+        while (headerNames.contains("Phone" + (phoneCount + 1) + "_Label")) {
+            phoneCount++;
+        }
+
+        int imported = 0;
+
+        for (CSVRecord record : parser) {
+            ContactRequest request = new ContactRequest();
+            request.setTitle(record.get("Title"));
+            request.setFirstName(record.get("FirstName"));
+            request.setLastName(record.get("LastName"));
+
+            List<EmailDto> emails = new ArrayList<>();
+            for (int i = 1; i <= emailCount; i++) {
+                String label = record.get("Email" + i + "_Label");
+                String email = record.get("Email" + i);
+                if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
+                    emails.add(new EmailDto(label, email));
+                }
+            }
+            request.setEmails(emails);
+
+            List<PhoneDto> phones = new ArrayList<>();
+            for (int i = 1; i <= phoneCount; i++) {
+                String label = record.get("Phone" + i + "_Label");
+                String phone = record.get("Phone" + i);
+                if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
+                    phones.add(new PhoneDto(label, phone));
+                }
+            }
+            request.setPhones(phones);
+
+            addContact(userId, request);
+            imported++;
+        }
+
+        log.info("Imported {} contacts", imported);
+        return new SuccessResponse("Imported " + imported + " contacts successfully");
     }
 }

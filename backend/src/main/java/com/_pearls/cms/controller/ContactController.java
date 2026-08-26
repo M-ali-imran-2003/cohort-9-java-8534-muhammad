@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -43,22 +44,22 @@ public class ContactController {
     public ResponseEntity<ContactResponse> get(
             @PathVariable Long contactId,
             @AuthenticationPrincipal User user) {
-        ContactResponse contact = contactService.findContact(user.getId(),contactId);
+        ContactResponse contact = contactService.findContact(user.getId(), contactId);
 
-        return new ResponseEntity<>(contact,HttpStatus.OK);
+        return new ResponseEntity<>(contact, HttpStatus.OK);
     }
 
     @PostMapping("/add-contact")
-    public ResponseEntity<SuccessResponse> add(@AuthenticationPrincipal User user, @RequestBody @Valid ContactRequest contactRequest){
+    public ResponseEntity<SuccessResponse> add(@AuthenticationPrincipal User user, @RequestBody @Valid ContactRequest contactRequest) {
 
-        SuccessResponse response = contactService.addContact(user.getId(),contactRequest);
+        SuccessResponse response = contactService.addContact(user.getId(), contactRequest);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete-contact/{contactId}")
     public ResponseEntity<SuccessResponse> delete(@PathVariable Long contactId,
-                                                  @AuthenticationPrincipal User user){
+                                                  @AuthenticationPrincipal User user) {
 
         SuccessResponse response = contactService.deleteContact(contactId, user.getId());
 
@@ -68,7 +69,7 @@ public class ContactController {
     @PutMapping("/update-contact/{contactId}")
     public ResponseEntity<SuccessResponse> update(@PathVariable Long contactId,
                                                   @AuthenticationPrincipal User user,
-                                                  @RequestBody @Valid ContactRequest contactRequest){
+                                                  @RequestBody @Valid ContactRequest contactRequest) {
 
         SuccessResponse response = contactService.updateContact(contactId, user.getId(), contactRequest);
 
@@ -80,5 +81,13 @@ public class ContactController {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"contacts.csv\"");
         contactService.exportContacts(user.getId(), response.getWriter());
+    }
+
+    @PostMapping("/import-contacts")
+    public ResponseEntity<SuccessResponse> importContact(
+            @AuthenticationPrincipal User user,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        SuccessResponse response = contactService.importContacts(user.getId(), file.getInputStream());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

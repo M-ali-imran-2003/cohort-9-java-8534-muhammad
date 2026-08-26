@@ -1,5 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { getAllContacts, getContact } from "../api/contactApi.js";
+import {
+  getAllContacts,
+  getContact,
+  importContacts,
+  exportContacts,
+} from "../api/contactApi.js";
 import Layout from "../components/Layout.jsx";
 import ContactFormModal from "../components/ContactFormModal.jsx";
 import ContactDetailModal from "../components/ContactDetailModal.jsx";
@@ -18,8 +23,11 @@ function Contacts() {
   const [formModal, setFormModal] = useState(null);
   const [viewingId, setViewingId] = useState(null);
   const [deletingContact, setDeletingContact] = useState(null);
+  const [importError, setImportError] = useState("");
+  const [importSuccess, setImportSuccess] = useState("");
 
   const requestIdRef = useRef(0);
+  const fileInputRef = useRef(null);
   const editRequestIdRef = useRef(0);
 
   const loadContacts = useCallback(() => {
@@ -85,6 +93,36 @@ function Contacts() {
     loadContacts();
   };
 
+  const handleExport = async () => {
+    try {
+      await exportContacts();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileSelected = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImportError("");
+    setImportSuccess("");
+
+    try {
+      const result = await importContacts(file);
+      setImportSuccess(result.message || "Import successful");
+      loadContacts();
+    } catch (err) {
+      setImportError(err.message);
+    } finally {
+      e.target.value = "";
+    }
+  };
+
   return (
     <Layout>
       <div className="contacts-header">
@@ -100,11 +138,36 @@ function Contacts() {
             Search
           </button>
         </form>
-        <button className="form-button" type="button" onClick={openCreate}>
-          + Add Contact
-        </button>
+        <div className="contacts-actions-group">
+          <button
+            type="button"
+            className="form-button-secondary"
+            onClick={handleExport}
+          >
+            Export CSV
+          </button>
+          <button
+            type="button"
+            className="form-button-secondary"
+            onClick={handleImportClick}
+          >
+            Import CSV
+          </button>
+          <input
+            type="file"
+            accept=".csv"
+            ref={fileInputRef}
+            onChange={handleFileSelected}
+            style={{ display: "none" }}
+          />
+          <button className="form-button" type="button" onClick={openCreate}>
+            + Add Contact
+          </button>
+        </div>
       </div>
 
+      {importError && <p className="form-message-error">{importError}</p>}
+      {importSuccess && <p className="form-message-success">{importSuccess}</p>}
       {error && <p className="form-message-error">{error}</p>}
       {editError && <p className="form-message-error">{editError}</p>}
       {contacts.length === 0 ? (
@@ -126,7 +189,7 @@ function Contacts() {
                 <td>
                   {c.firstName} {c.lastName}
                 </td>
-                <td> {new Date(c.createdAt).toLocaleDateString()}</td>
+                <td> {new Date(c.createdAt).toLocaleDateString("en-GB")}</td>
                 <td className="contact-actions">
                   <button
                     type="button"

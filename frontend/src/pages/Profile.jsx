@@ -4,6 +4,9 @@ import { logout } from "../api/authApi.js";
 import { useAuth } from "../context/useAuth.js";
 import { getProfile } from "../api/userApi.js";
 import Layout from "../components/Layout.jsx";
+import { useToast } from "../context/useToast.js";
+import { LogOut } from "lucide-react";
+
 import ChangePasswordModal from "../components/ChangePasswordModal.jsx";
 import "../styles/form.css";
 import "../styles/profile.css";
@@ -14,11 +17,13 @@ function Profile() {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated, setUser } = useAuth();
+  const { showToast } = useToast();
 
   const handleLogout = async () => {
     await logout();
     setIsAuthenticated(false);
     setUser(null);
+    showToast("Logged out successfully", "success");
     navigate("/login");
   };
 
@@ -66,7 +71,7 @@ function Profile() {
           Change Password
         </button>
         <button type="button" className="logout-button" onClick={handleLogout}>
-          Logout
+          <LogOut size={16} /> Logout
         </button>
       </div>
 

@@ -1,5 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import {
+  Eye,
+  Pencil,
+  Trash2,
+  Plus,
+  Download,
+  Upload,
+  Search,
+} from "lucide-react";
+import { useToast } from "../context/useToast.js";
+import {
   getAllContacts,
   getContact,
   importContacts,
@@ -29,6 +39,7 @@ function Contacts() {
   const requestIdRef = useRef(0);
   const fileInputRef = useRef(null);
   const editRequestIdRef = useRef(0);
+  const { showToast } = useToast();
 
   const loadContacts = useCallback(() => {
     const currentRequestId = ++requestIdRef.current;
@@ -96,8 +107,9 @@ function Contacts() {
   const handleExport = async () => {
     try {
       await exportContacts();
+      showToast("Contacts exported successfully", "success");
     } catch (err) {
-      setError(err.message);
+      showToast(err.message, "error");
     }
   };
 
@@ -114,10 +126,10 @@ function Contacts() {
 
     try {
       const result = await importContacts(file);
-      setImportSuccess(result.message || "Import successful");
+      showToast(result.message, "success");
       loadContacts();
     } catch (err) {
-      setImportError(err.message);
+      showToast(err.message, "error");
     } finally {
       e.target.value = "";
     }
@@ -135,7 +147,7 @@ function Contacts() {
             onChange={(e) => setSearchInput(e.target.value)}
           />
           <button type="submit" className="form-button">
-            Search
+            <Search size={16} /> Search
           </button>
         </form>
         <div className="contacts-actions-group">
@@ -144,14 +156,14 @@ function Contacts() {
             className="form-button-secondary"
             onClick={handleExport}
           >
-            Export CSV
+            <Download size={16} /> Export CSV
           </button>
           <button
             type="button"
             className="form-button-secondary"
             onClick={handleImportClick}
           >
-            Import CSV
+            <Upload size={16} /> Import CSV
           </button>
           <input
             type="file"
@@ -161,7 +173,7 @@ function Contacts() {
             style={{ display: "none" }}
           />
           <button className="form-button" type="button" onClick={openCreate}>
-            + Add Contact
+            <Plus size={16} /> Add Contact
           </button>
         </div>
       </div>
@@ -192,6 +204,7 @@ function Contacts() {
                 <td> {new Date(c.createdAt).toLocaleDateString("en-GB")}</td>
                 <td className="contact-actions">
                   <button
+                    title="View"
                     type="button"
                     className="contact-action-btn"
                     onClick={() => {
@@ -199,16 +212,18 @@ function Contacts() {
                       setViewingId(c.id);
                     }}
                   >
-                    View
+                    <Eye size={16} />
                   </button>
                   <button
+                    title="Edit"
                     type="button"
                     className="contact-action-btn"
                     onClick={() => openEdit(c.id)}
                   >
-                    Edit
+                    <Pencil size={16} />
                   </button>
                   <button
+                    title="Delete"
                     type="button"
                     className="contact-action-btn danger"
                     onClick={() => {
@@ -216,7 +231,7 @@ function Contacts() {
                       setDeletingContact(c);
                     }}
                   >
-                    Delete
+                    <Trash2 size={16} />
                   </button>
                 </td>
               </tr>

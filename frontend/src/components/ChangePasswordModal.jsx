@@ -1,11 +1,15 @@
 import { useForm, useWatch } from "react-hook-form";
 import { useState, useRef, useEffect } from "react";
 import { changePassword } from "../api/userApi.js";
+import { useToast } from "../context/useToast.js";
+
 import "../styles/modal.css";
 import "../styles/form.css";
 
 function ChangePasswordModal({ onClose }) {
   const modalRef = useRef(null);
+  const { showToast } = useToast();
+
   const previousFocusRef = useRef(null);
   const {
     register,
@@ -16,7 +20,6 @@ function ChangePasswordModal({ onClose }) {
   } = useForm({ mode: "onChange" });
 
   const [serverError, setServerError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const newPassword = useWatch({
     control,
@@ -64,13 +67,12 @@ function ChangePasswordModal({ onClose }) {
 
   const onSubmit = async (data) => {
     setServerError("");
-    setSuccess("");
     try {
       const result = await changePassword(
         data.currentPassword,
         data.newPassword,
       );
-      setSuccess(result.message);
+      showToast(result.message, "success");
       reset();
       setTimeout(() => {
         onClose();
@@ -93,7 +95,6 @@ function ChangePasswordModal({ onClose }) {
         <h2 className="form-title">Change Password</h2>
 
         {serverError && <p className="form-message-error">{serverError}</p>}
-        {success && <p className="form-message-success">{success}</p>}
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-field">

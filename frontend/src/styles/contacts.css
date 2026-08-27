@@ -57,6 +57,14 @@
   font-size: 13px;
 }
 
+.contact-action-btn,
+.form-button,
+.form-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .contact-action-btn:hover {
   background: #f0f6fd;
   border-color: #4a90e2;

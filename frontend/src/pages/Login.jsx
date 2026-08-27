@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { login } from "../api/authApi.js";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth.js";
+import { useToast } from "../context/useToast.js";
+
 import "../styles/form.css";
 
 function Login() {
@@ -25,10 +27,10 @@ function Login() {
     return "";
   });
 
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
   const { checkAuth } = useAuth();
   const redirectTimerRef = useRef(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     // eslint-disable-next-line no-useless-assignment
@@ -49,11 +51,10 @@ function Login() {
 
   const onSubmit = async (data) => {
     setServerError("");
-    setSuccess("");
     try {
       const result = await login(data.identifier, data.password);
       await checkAuth();
-      setSuccess(result.message);
+      showToast(result.message, "success");
       redirectTimerRef.current = setTimeout(() => {
         navigate("/contacts");
       }, 800);
@@ -75,7 +76,6 @@ function Login() {
       <h2 className="form-title">Login</h2>
 
       {serverError && <p className="form-message-error">{serverError}</p>}
-      {success && <p className="form-message-success">{success}</p>}
 
       {/* eslint-disable-next-line react-hooks/refs */}
       <form onSubmit={handleSubmit(onSubmit)}>

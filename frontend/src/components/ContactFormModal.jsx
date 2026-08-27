@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { addContact, updateContact } from "../api/contactApi.js";
+import { useToast } from "../context/useToast.js";
+
 import "../styles/form.css";
 import "../styles/modal.css";
 import "../styles/contacts.css";
@@ -25,6 +27,7 @@ function ContactFormModal({ mode, initialData, onClose, onSaved }) {
 
   const emailFields = useFieldArray({ control, name: "emails" });
   const phoneFields = useFieldArray({ control, name: "phones" });
+  const { showToast } = useToast();
 
   const [serverError, setServerError] = useState("");
 
@@ -48,9 +51,11 @@ function ContactFormModal({ mode, initialData, onClose, onSaved }) {
     setServerError("");
     try {
       if (mode === "create") {
-        await addContact(data);
+        const result = await addContact(data);
+        showToast(result.message, "success");
       } else {
-        await updateContact(initialData.id, data);
+        const result = await updateContact(initialData.id, data);
+        showToast(result.message, "success");
       }
       onSaved();
     } catch (err) {

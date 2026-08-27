@@ -1,10 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth.js";
+import Spinner from "../components/Spinner.jsx";
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated === null) {
-    return <p>Loading...</p>;
+    return <Spinner />;
   }
 
   if (!isAuthenticated) {

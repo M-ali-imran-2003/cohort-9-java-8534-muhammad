@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../api/authApi.js";
+import { useAuth } from "../context/useAuth.js";
 import { getProfile } from "../api/userApi.js";
 import Layout from "../components/Layout.jsx";
 import ChangePasswordModal from "../components/ChangePasswordModal.jsx";
@@ -11,8 +13,12 @@ function Profile() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const { setIsAuthenticated, setUser } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    setIsAuthenticated(false);
+    setUser(null);
     navigate("/login");
   };
 
@@ -46,7 +52,7 @@ function Profile() {
             <div className="profile-field">
               <span className="profile-label">Joined</span>
               <span className="profile-value">
-                {new Date(profile.joinedAt).toLocaleDateString()}
+                {new Date(profile.joinedAt).toLocaleDateString("en-GB")}
               </span>
             </div>
           </div>

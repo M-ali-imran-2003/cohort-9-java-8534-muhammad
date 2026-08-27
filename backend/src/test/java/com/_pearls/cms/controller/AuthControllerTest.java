@@ -1,13 +1,11 @@
 package com._pearls.cms.controller;
 
 import com._pearls.cms.dto.LoginRequest;
-import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
 import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.service.AuthService;
 import com._pearls.cms.service.JwtService;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -18,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -75,20 +74,21 @@ class AuthControllerTest {
     @Test
     void loginSuccess() throws Exception {
         LoginRequest request = new LoginRequest("momin@gmail.com", "12345678");
-        when(authService.login(any(LoginRequest.class))).thenReturn(new LoginResponse("jwt-token-123"));
+        // authService.login is void — no stubbing needed for the happy path,
+        // Mockito's default behavior for a void method is to do nothing.
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("jwt-token-123")));
+                .andExpect(content().string("{\"message\":\"Login Successful\"}"));
     }
 
     @Test
     void loginUnauthorized() throws Exception {
         LoginRequest request = new LoginRequest("momin@gmail.com", "wrongpass");
-        when(authService.login(any(LoginRequest.class)))
-                .thenThrow(new BadCredentialsException("Provided credentials are incorrect"));
+        doThrow(new BadCredentialsException("Provided credentials are incorrect"))
+                .when(authService).login(any(LoginRequest.class), any());
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

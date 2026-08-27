@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { login } from "../api/authApi.js";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth.js";
 import "../styles/form.css";
 
 function Login() {
@@ -26,6 +27,7 @@ function Login() {
 
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { checkAuth } = useAuth();
   const redirectTimerRef = useRef(null);
 
   useEffect(() => {
@@ -50,13 +52,13 @@ function Login() {
     setSuccess("");
     try {
       const result = await login(data.identifier, data.password);
-      localStorage.setItem("token", result.token);
-      setSuccess("Login Successful! Redirecting...");
+      await checkAuth();
+      setSuccess(result.message);
       redirectTimerRef.current = setTimeout(() => {
         navigate("/contacts");
       }, 800);
     } catch (err) {
-      setServerError(err.message || "Login failed");
+      setServerError(err.message);
     }
   };
 

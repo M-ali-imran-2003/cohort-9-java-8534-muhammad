@@ -7,6 +7,8 @@ import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,7 +59,7 @@ public class AuthService {
         return new SuccessResponse("Registration Successful");
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public void login(LoginRequest loginRequest, HttpServletResponse response) {
 
         User dbUser = userRepository.findByEmailOrPhone(
                 loginRequest.getIdentifier()
@@ -66,8 +68,17 @@ public class AuthService {
         if (dbUser != null) {
 
             if (encoder.matches(loginRequest.getPassword(), dbUser.getPassword())) {
+                String token = jwtService.generateToken(dbUser.getId());
+
+                Cookie cookie = new Cookie("token", token);
+                cookie.setHttpOnly(true);
+                cookie.setSecure(false); // set true in production (requires HTTPS)
+                cookie.setPath("/");
+                cookie.setMaxAge((int) (jwtService.getExpiryMs() / 1000));
+                cookie.setAttribute("SameSite", "Lax");
+
+                response.addCookie(cookie);
                 log.info("User Logged In successfully");
-                return new LoginResponse(jwtService.generateToken(dbUser.getId()));
             }
             else{
                 log.warn("Password does not match for the identified user");

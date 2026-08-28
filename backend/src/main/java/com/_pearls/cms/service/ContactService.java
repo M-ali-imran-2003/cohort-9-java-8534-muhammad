@@ -271,43 +271,63 @@ public class ContactService {
         }
     }
 
-    @Transactional
     public SuccessResponse importContacts(Long userId, InputStream inputStream) throws IOException {
         Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-        CSVFormat format = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
-        CSVParser parser = new CSVParser(reader, format);
+
+        CSVFormat format = CSVFormat.DEFAULT.builder()
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .build();
+
+        CSVParser parser;
+        try {
+            parser = new CSVParser(reader, format);
+        } catch (IOException ex) {
+            throw new InvalidRequestException("Unable to parse the uploaded CSV file: " + ex.getMessage());
+        }
 
         Set<String> headerNames = new HashSet<>(parser.getHeaderNames());
+
         if (!headerNames.contains("Title") || !headerNames.contains("FirstName") || !headerNames.contains("LastName")) {
             throw new InvalidRequestException("CSV is missing required headers: Title, FirstName, LastName");
         }
 
-        int emailCount = 0;
-        while (headerNames.contains("Email" + (emailCount + 1) + "_Label")) emailCount++;
-        int phoneCount = 0;
-        while (headerNames.contains("Phone" + (phoneCount + 1) + "_Label")) phoneCount++;
+        int maxEmailIndex = 0;
+        int maxPhoneIndex = 0;
+        for (String header : headerNames) {
+            maxEmailIndex = Math.max(maxEmailIndex, extractIndex(header, "Email"));
+            maxPhoneIndex = Math.max(maxPhoneIndex, extractIndex(header, "Phone"));
+        }
 
-        for (int i = 1; i <= emailCount; i++) {
+        // Require BOTH headers present for every index 1..max — reject gaps like Email1/Email3
+        for (int i = 1; i <= maxEmailIndex; i++) {
             if (!headerNames.contains("Email" + i) || !headerNames.contains("Email" + i + "_Label")) {
                 throw new InvalidRequestException(
-                        "CSV header for Email" + i + " is incomplete; both Email" + i +
-                                " and Email" + i + "_Label are required");
+                        "CSV header for Email" + i + " is incomplete or missing; both Email" + i +
+                                " and Email" + i + "_Label are required for a contiguous sequence up to Email" + maxEmailIndex);
             }
         }
-        for (int i = 1; i <= phoneCount; i++) {
+        for (int i = 1; i <= maxPhoneIndex; i++) {
             if (!headerNames.contains("Phone" + i) || !headerNames.contains("Phone" + i + "_Label")) {
                 throw new InvalidRequestException(
-                        "CSV header for Phone" + i + " is incomplete; both Phone" + i +
-                                " and Phone" + i + "_Label are required");
+                        "CSV header for Phone" + i + " is incomplete or missing; both Phone" + i +
+                                " and Phone" + i + "_Label are required for a contiguous sequence up to Phone" + maxPhoneIndex);
             }
         }
 
         List<ContactRequest> requests = new ArrayList<>();
 
-        for (CSVRecord record : parser) {
+        List<CSVRecord> records;
+        try {
+            records = parser.getRecords();
+        } catch (RuntimeException ex) {
+            throw new InvalidRequestException("Unable to read CSV rows: " + ex.getMessage());
+        }
+
+        for (CSVRecord record : records) {
             ContactRequest request = new ContactRequest();
             String title = unsanitizeCsvField(record.get("Title"));
-            String firstName = unsanitizeCsvField(record.get("FirstName");
+            String firstName = unsanitizeCsvField(record.get("FirstName"));
             String lastName = unsanitizeCsvField(record.get("LastName"));
 
             if (title == null || title.isBlank() || firstName == null || firstName.isBlank()
@@ -320,7 +340,7 @@ public class ContactService {
             request.setLastName(lastName);
 
             List<EmailDto> emails = new ArrayList<>();
-            for (int i = 1; i <= emailCount; i++) {
+            for (int i = 1; i <= maxEmailIndex; i++) {
                 String label = unsanitizeCsvField(record.get("Email" + i + "_Label"));
                 String email = unsanitizeCsvField(record.get("Email" + i));
                 if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
@@ -330,7 +350,7 @@ public class ContactService {
             request.setEmails(emails);
 
             List<PhoneDto> phones = new ArrayList<>();
-            for (int i = 1; i <= phoneCount; i++) {
+            for (int i = 1; i <= maxPhoneIndex; i++) {
                 String label = unsanitizeCsvField(record.get("Phone" + i + "_Label"));
                 String phone = unsanitizeCsvField(record.get("Phone" + i));
                 if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
@@ -353,12 +373,31 @@ public class ContactService {
         log.info("Imported {} contacts for user {}", requests.size(), userId);
         return new SuccessResponse("Imported " + requests.size() + " contacts successfully");
     }
+
+    private int extractIndex(String header, String prefix) {
+        String suffix;
+        if (header.startsWith(prefix)) {
+            suffix = header.substring(prefix.length());
+        } else {
+            return 0;
+        }
+        if (suffix.endsWith("_Label")) {
+            suffix = suffix.substring(0, suffix.length() - "_Label".length());
+        }
+        try {
+            return Integer.parseInt(suffix);
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
+
     private String sanitizeCsvField(String value) {
         if (value != null && !value.isEmpty() && "=+-@".indexOf(value.charAt(0)) != -1) {
             return "'" + value;
         }
         return value;
     }
+
     private String unsanitizeCsvField(String value) {
         if (value != null && value.length() > 1
                 && value.charAt(0) == '\'' && "=+-@".indexOf(value.charAt(1)) != -1) {
@@ -366,4 +405,5 @@ public class ContactService {
         }
         return value;
     }
+
 }

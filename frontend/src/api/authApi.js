@@ -31,9 +31,5 @@ export async function registerUser(name, email, phone, password) {
 }
 
 export async function logout() {
-  try {
-    await axiosClient.post("/api/auth/logout");
-  } catch {
-    // even if the request fails, proceed with client-side cleanup
-  }
+  await axiosClient.post("/api/auth/logout");
 }

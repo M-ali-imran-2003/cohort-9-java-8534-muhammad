@@ -84,13 +84,13 @@ Built as part of the 10Pearls Shine Program (Java Full Stack Internship).
 ```
 ┌─────────────┐        HTTPS/JSON         ┌──────────────────┐        JPA/Hibernate        ┌──────────────┐
 │   React     │  ◄─────────────────────►  │   Spring Boot    │  ◄─────────────────────►    │  PostgreSQL  │
-│   Frontend  │      (HttpOnly Cookie)     │   REST API       │                              │   Database   │
-└─────────────┘                            └──────────────────┘                              └──────────────┘
+│   Frontend  │      (HttpOnly Cookie)    │   REST API       │                             │   Database   │
+└─────────────┘                           └──────────────────┘                             └──────────────┘
 ```
 
 **Backend layering:** `Controller → Service → Repository → Database`, with a global `@RestControllerAdvice` exception handler and a `SecurityConfig` enforcing stateless JWT authentication on every route except `/api/auth/**`.
 
-**Frontend structure:** page components (`Login`, `Register`, `Profile`, `Contacts`) consume a set of API modules (`authApi`, `userApi`, `contactsApi`) built on a shared `axiosClient` with request/response interceptors. Authentication state is managed globally via React Context (`AuthContext`), and route protection is enforced with a `ProtectedRoute` wrapper.
+**Frontend structure:** page components (`Login`, `Register`, `Profile`, `Contacts`) consume a set of API modules (`authApi`, `userApi`, `contactApi`) built on a shared `axiosClient` with request/response interceptors. Authentication state is managed globally via React Context (`AuthContext`), and route protection is enforced with a `ProtectedRoute` wrapper.
 
 ---
 
@@ -180,6 +180,7 @@ contact_phones
 
 ## API Reference
 
+
 ### Auth (`/api/auth`)
 | Method | Endpoint | Description | Auth Required |
 |---|---|---|---|
@@ -187,11 +188,13 @@ contact_phones
 | POST | `/login` | Log in (sets HttpOnly cookie) | No |
 | POST | `/logout` | Log out (clears cookie) | Yes |
 
+
 ### User (`/api/user`)
 | Method | Endpoint | Description | Auth Required |
 |---|---|---|---|
 | GET | `/get-profile` | Get the logged-in user's profile | Yes |
 | PUT | `/change-password` | Change password | Yes |
+
 
 ### Contacts (`/api/contacts`)
 | Method | Endpoint | Description | Auth Required |
@@ -203,6 +206,7 @@ contact_phones
 | DELETE | `/delete-contact/{id}` | Delete a contact | Yes |
 | GET | `/export-contacts` | Export all contacts as CSV | Yes |
 | POST | `/import` | Import contacts from a CSV file | Yes |
+
 
 All authenticated endpoints require a valid session cookie, set automatically by the browser after login.
 

@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
 
     public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder encoder) {
         this.userRepository = userRepository;
@@ -72,7 +75,7 @@ public class AuthService {
 
                 Cookie cookie = new Cookie("token", token);
                 cookie.setHttpOnly(true);
-                cookie.setSecure(false); // set true in production (requires HTTPS)
+                cookie.setSecure(cookieSecure);
                 cookie.setPath("/");
                 cookie.setMaxAge((int) (jwtService.getExpiryMs() / 1000));
                 cookie.setAttribute("SameSite", "Lax");

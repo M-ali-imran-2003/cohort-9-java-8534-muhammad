@@ -20,11 +20,15 @@ function Profile() {
   const { showToast } = useToast();
 
   const handleLogout = async () => {
-    await logout();
-    setIsAuthenticated(false);
-    setUser(null);
-    showToast("Logged out successfully", "success");
-    navigate("/login");
+    try {
+      await logout();
+      setIsAuthenticated(false);
+      setUser(null);
+      showToast("Logged out successfully", "success");
+      navigate("/login");
+    } catch {
+      showToast("Logout failed, please try again", "error");
+    }
   };
 
   useEffect(() => {

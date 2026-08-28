@@ -43,6 +43,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  display: flex;
 }
 
 .logout-button:hover {

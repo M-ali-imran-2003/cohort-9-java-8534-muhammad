@@ -17,6 +17,7 @@ function ChangePasswordModal({ onClose }) {
     formState: { errors },
     reset,
     control,
+    trigger,
   } = useForm({ mode: "onChange" });
 
   const [serverError, setServerError] = useState("");
@@ -134,6 +135,7 @@ function ChangePasswordModal({ onClose }) {
                   value: 15,
                   message: "Must be under 15 characters",
                 },
+                onChange: () => trigger("confirmPassword"),
               })}
             />
             {errors.newPassword && (

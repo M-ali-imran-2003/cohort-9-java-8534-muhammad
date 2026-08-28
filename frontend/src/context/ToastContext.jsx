@@ -21,15 +21,16 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="toast-container">
+      <div className="toast-container" role="status" aria-live="polite">
         {toasts.map((t) => (
-          <div
+          <button
             key={t.id}
+            type="button"
             className={`toast toast-${t.type}`}
             onClick={() => removeToast(t.id)}
           >
             {t.message}
-          </div>
+          </button>
         ))}
       </div>
     </ToastContext.Provider>

@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -136,11 +137,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorResponse> handleIOException(IOException ex, HttpServletRequest request) {
-
+    public ResponseEntity<ErrorResponse> handleIOException(IOException ex, HttpServletRequest request, HttpServletResponse response) {
         if (ex.getClass().getName().contains("ClientAbortException") ||
                 (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("broken pipe"))) {
             logger.warn("Client disconnected abruptly during data streaming: {}", ex.getMessage());
+            response.setStatus(HttpServletResponse.SC_OK);
             return null;
         }
 

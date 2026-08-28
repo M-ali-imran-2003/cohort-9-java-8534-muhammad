@@ -10,14 +10,17 @@
 }
 
 .toast {
+  border: none;
+  text-align: left;
+  font-family: inherit;
   padding: 14px 18px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  animation: toastSlideIn 0.25s ease-out;
+  animation: toast-slide-in 0.25s ease-out;
   cursor: pointer;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .toast-success {
@@ -38,7 +41,7 @@
   border: 1px solid #bbdefb;
 }
 
-@keyframes toastSlideIn {
+@keyframes toast-slide-in {
   from {
     transform: translateX(110%);
     opacity: 0;

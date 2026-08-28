@@ -240,15 +240,15 @@ public class ContactService {
         try (CSVPrinter printer = new CSVPrinter(writer, format)) {
             for (Contact contact : contacts) {
                 List<Object> row = new ArrayList<>();
-                row.add(contact.getTitle());
-                row.add(contact.getFirstName());
-                row.add(contact.getLastName());
+                row.add(sanitizeCsvField(contact.getTitle()));
+                row.add(sanitizeCsvField(contact.getFirstName()));
+                row.add(sanitizeCsvField(contact.getLastName()));
 
                 List<Email> emails = emailsByContact.get(contact.getId());
                 for (int i = 0; i < maxEmails; i++) {
                     if (i < emails.size()) {
-                        row.add(emails.get(i).getLabel());
-                        row.add(emails.get(i).getEmail());
+                        row.add(sanitizeCsvField(emails.get(i).getLabel()));
+                        row.add(sanitizeCsvField(emails.get(i).getEmail()));
                     } else {
                         row.add("");
                         row.add("");
@@ -258,8 +258,8 @@ public class ContactService {
                 List<Phone> phones = phonesByContact.get(contact.getId());
                 for (int i = 0; i < maxPhones; i++) {
                     if (i < phones.size()) {
-                        row.add(phones.get(i).getLabel());
-                        row.add(phones.get(i).getPhone());
+                        row.add(sanitizeCsvField(phones.get(i).getLabel()));
+                        row.add(sanitizeCsvField(phones.get(i).getPhone()));
                     } else {
                         row.add("");
                         row.add("");
@@ -270,35 +270,39 @@ public class ContactService {
             }
         }
     }
+
+    @Transactional
     public SuccessResponse importContacts(Long userId, InputStream inputStream) throws IOException {
         Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-
-        CSVFormat format = CSVFormat.DEFAULT.builder()
-                .setHeader()
-                .setSkipHeaderRecord(true)
-                .build();
-
+        CSVFormat format = CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build();
         CSVParser parser = new CSVParser(reader, format);
 
         Set<String> headerNames = new HashSet<>(parser.getHeaderNames());
+        if (!headerNames.contains("Title") || !headerNames.contains("FirstName") || !headerNames.contains("LastName")) {
+            throw new InvalidRequestException("CSV is missing required headers: Title, FirstName, LastName");
+        }
 
         int emailCount = 0;
-        while (headerNames.contains("Email" + (emailCount + 1) + "_Label")) {
-            emailCount++;
-        }
-
+        while (headerNames.contains("Email" + (emailCount + 1) + "_Label")) emailCount++;
         int phoneCount = 0;
-        while (headerNames.contains("Phone" + (phoneCount + 1) + "_Label")) {
-            phoneCount++;
-        }
+        while (headerNames.contains("Phone" + (phoneCount + 1) + "_Label")) phoneCount++;
 
-        int imported = 0;
+        List<ContactRequest> requests = new ArrayList<>();
 
         for (CSVRecord record : parser) {
             ContactRequest request = new ContactRequest();
-            request.setTitle(record.get("Title"));
-            request.setFirstName(record.get("FirstName"));
-            request.setLastName(record.get("LastName"));
+            String title = record.get("Title");
+            String firstName = record.get("FirstName");
+            String lastName = record.get("LastName");
+
+            if (title == null || title.isBlank() || firstName == null || firstName.isBlank()
+                    || lastName == null || lastName.isBlank()) {
+                throw new InvalidRequestException("Row " + record.getRecordNumber() + " is missing required fields");
+            }
+
+            request.setTitle(title);
+            request.setFirstName(firstName);
+            request.setLastName(lastName);
 
             List<EmailDto> emails = new ArrayList<>();
             for (int i = 1; i <= emailCount; i++) {
@@ -320,11 +324,24 @@ public class ContactService {
             }
             request.setPhones(phones);
 
-            addContact(userId, request);
-            imported++;
+            if (emails.isEmpty() || phones.isEmpty()) {
+                throw new InvalidRequestException("Row " + record.getRecordNumber() + " must have at least one email and one phone");
+            }
+
+            requests.add(request);
         }
 
-        log.info("Imported {} contacts", imported);
-        return new SuccessResponse("Imported " + imported + " contacts successfully");
+        for (ContactRequest request : requests) {
+            addContact(userId, request);
+        }
+
+        log.info("Imported {} contacts for user {}", requests.size(), userId);
+        return new SuccessResponse("Imported " + requests.size() + " contacts successfully");
+    }
+    private String sanitizeCsvField(String value) {
+        if (value != null && !value.isEmpty() && "=+-@".indexOf(value.charAt(0)) != -1) {
+            return "'" + value;
+        }
+        return value;
     }
 }

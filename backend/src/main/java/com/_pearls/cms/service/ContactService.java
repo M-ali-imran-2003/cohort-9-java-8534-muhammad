@@ -287,13 +287,28 @@ public class ContactService {
         int phoneCount = 0;
         while (headerNames.contains("Phone" + (phoneCount + 1) + "_Label")) phoneCount++;
 
+        for (int i = 1; i <= emailCount; i++) {
+            if (!headerNames.contains("Email" + i) || !headerNames.contains("Email" + i + "_Label")) {
+                throw new InvalidRequestException(
+                        "CSV header for Email" + i + " is incomplete; both Email" + i +
+                                " and Email" + i + "_Label are required");
+            }
+        }
+        for (int i = 1; i <= phoneCount; i++) {
+            if (!headerNames.contains("Phone" + i) || !headerNames.contains("Phone" + i + "_Label")) {
+                throw new InvalidRequestException(
+                        "CSV header for Phone" + i + " is incomplete; both Phone" + i +
+                                " and Phone" + i + "_Label are required");
+            }
+        }
+
         List<ContactRequest> requests = new ArrayList<>();
 
         for (CSVRecord record : parser) {
             ContactRequest request = new ContactRequest();
-            String title = record.get("Title");
-            String firstName = record.get("FirstName");
-            String lastName = record.get("LastName");
+            String title = unsanitizeCsvField(record.get("Title"));
+            String firstName = unsanitizeCsvField(record.get("FirstName");
+            String lastName = unsanitizeCsvField(record.get("LastName"));
 
             if (title == null || title.isBlank() || firstName == null || firstName.isBlank()
                     || lastName == null || lastName.isBlank()) {
@@ -306,8 +321,8 @@ public class ContactService {
 
             List<EmailDto> emails = new ArrayList<>();
             for (int i = 1; i <= emailCount; i++) {
-                String label = record.get("Email" + i + "_Label");
-                String email = record.get("Email" + i);
+                String label = unsanitizeCsvField(record.get("Email" + i + "_Label"));
+                String email = unsanitizeCsvField(record.get("Email" + i));
                 if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
                     emails.add(new EmailDto(label, email));
                 }
@@ -316,8 +331,8 @@ public class ContactService {
 
             List<PhoneDto> phones = new ArrayList<>();
             for (int i = 1; i <= phoneCount; i++) {
-                String label = record.get("Phone" + i + "_Label");
-                String phone = record.get("Phone" + i);
+                String label = unsanitizeCsvField(record.get("Phone" + i + "_Label"));
+                String phone = unsanitizeCsvField(record.get("Phone" + i));
                 if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
                     phones.add(new PhoneDto(label, phone));
                 }
@@ -341,6 +356,13 @@ public class ContactService {
     private String sanitizeCsvField(String value) {
         if (value != null && !value.isEmpty() && "=+-@".indexOf(value.charAt(0)) != -1) {
             return "'" + value;
+        }
+        return value;
+    }
+    private String unsanitizeCsvField(String value) {
+        if (value != null && value.length() > 1
+                && value.charAt(0) == '\'' && "=+-@".indexOf(value.charAt(1)) != -1) {
+            return value.substring(1);
         }
         return value;
     }

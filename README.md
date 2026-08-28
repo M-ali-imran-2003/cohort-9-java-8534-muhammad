@@ -186,7 +186,7 @@ contact_phones
 |---|---|---|---|
 | POST | `/register` | Register a new user | No |
 | POST | `/login` | Log in (sets HttpOnly cookie) | No |
-| POST | `/logout` | Log out (clears cookie) | Yes |
+| POST | `/logout` | Log out (clears cookie) | No |
 
 
 ### User (`/api/user`)

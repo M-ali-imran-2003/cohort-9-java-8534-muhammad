@@ -18,4 +18,5 @@ jwt.secret=REPLACE_WITH_YOUR_BASE64_SECRET
 jwt.expiry-ms=900000
 
 # --- Cookie ---
-cookie.secure=false // true in production
+cookie.secure=false
+# Set cookie.secure=true in production.

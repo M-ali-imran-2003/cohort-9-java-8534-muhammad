@@ -273,103 +273,99 @@ public class ContactService {
 
     @Transactional
     public SuccessResponse importContacts(Long userId, InputStream inputStream) throws IOException {
-        Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-
         CSVFormat format = CSVFormat.DEFAULT.builder()
                 .setHeader()
                 .setSkipHeaderRecord(true)
                 .build();
 
-        CSVParser parser;
-        try {
-            parser = new CSVParser(reader, format);
-        } catch (IOException ex) {
-            throw new InvalidRequestException("Unable to parse the uploaded CSV file: " + ex.getMessage());
-        }
-
-        Set<String> headerNames = new HashSet<>(parser.getHeaderNames());
-
-        if (!headerNames.contains("Title") || !headerNames.contains("FirstName") || !headerNames.contains("LastName")) {
-            throw new InvalidRequestException("CSV is missing required headers: Title, FirstName, LastName");
-        }
-
-        int maxEmailIndex = 0;
-        int maxPhoneIndex = 0;
-        for (String header : headerNames) {
-            maxEmailIndex = Math.max(maxEmailIndex, extractIndex(header, "Email"));
-            maxPhoneIndex = Math.max(maxPhoneIndex, extractIndex(header, "Phone"));
-        }
-
-        // Require BOTH headers present for every index 1..max — reject gaps like Email1/Email3
-        for (int i = 1; i <= maxEmailIndex; i++) {
-            if (!headerNames.contains("Email" + i) || !headerNames.contains("Email" + i + "_Label")) {
-                throw new InvalidRequestException(
-                        "CSV header for Email" + i + " is incomplete or missing; both Email" + i +
-                                " and Email" + i + "_Label are required for a contiguous sequence up to Email" + maxEmailIndex);
-            }
-        }
-        for (int i = 1; i <= maxPhoneIndex; i++) {
-            if (!headerNames.contains("Phone" + i) || !headerNames.contains("Phone" + i + "_Label")) {
-                throw new InvalidRequestException(
-                        "CSV header for Phone" + i + " is incomplete or missing; both Phone" + i +
-                                " and Phone" + i + "_Label are required for a contiguous sequence up to Phone" + maxPhoneIndex);
-            }
-        }
-
         List<ContactRequest> requests = new ArrayList<>();
 
-        List<CSVRecord> records;
-        try {
-            records = parser.getRecords();
-        } catch (Exception ex) {
-            throw new InvalidRequestException("Unable to read CSV rows: " + ex.getMessage());
-        }
+        try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+             CSVParser parser = new CSVParser(reader, format)) {
 
-        for (CSVRecord record : records) {
-            ContactRequest request = new ContactRequest();
+            Set<String> headerNames = new HashSet<>(parser.getHeaderNames());
 
-            String title = record.isSet("Title") ? unsanitizeCsvField(record.get("Title")) : null;
-            String firstName = record.isSet("FirstName") ? unsanitizeCsvField(record.get("FirstName")) : null;
-            String lastName = record.isSet("LastName") ? unsanitizeCsvField(record.get("LastName")) : null;
-
-            if (title == null || title.isBlank() || firstName == null || firstName.isBlank()
-                    || lastName == null || lastName.isBlank()) {
-                throw new InvalidRequestException("Row " + record.getRecordNumber() + " is missing required fields");
+            if (!headerNames.contains("Title") || !headerNames.contains("FirstName") || !headerNames.contains("LastName")) {
+                throw new InvalidRequestException("CSV is missing required headers: Title, FirstName, LastName");
             }
 
-            request.setTitle(title);
-            request.setFirstName(firstName);
-            request.setLastName(lastName);
+            int maxEmailIndex = 0;
+            int maxPhoneIndex = 0;
+            for (String header : headerNames) {
+                maxEmailIndex = Math.max(maxEmailIndex, extractIndex(header, "Email"));
+                maxPhoneIndex = Math.max(maxPhoneIndex, extractIndex(header, "Phone"));
+            }
 
-            List<EmailDto> emails = new ArrayList<>();
             for (int i = 1; i <= maxEmailIndex; i++) {
-                String labelKey = "Email" + i + "_Label";
-                String emailKey = "Email" + i;
-                String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
-                String email = record.isSet(emailKey) ? unsanitizeCsvField(record.get(emailKey)) : null;
-                if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
-                    emails.add(new EmailDto(label, email));
+                if (!headerNames.contains("Email" + i) || !headerNames.contains("Email" + i + "_Label")) {
+                    throw new InvalidRequestException(
+                            "CSV header for Email" + i + " is incomplete or missing; both Email" + i +
+                                    " and Email" + i + "_Label are required for a contiguous sequence up to Email" + maxEmailIndex);
                 }
             }
-            request.setEmails(emails);
-
-            List<PhoneDto> phones = new ArrayList<>();
             for (int i = 1; i <= maxPhoneIndex; i++) {
-                String labelKey = "Phone" + i + "_Label";
-                String phoneKey = "Phone" + i;
-                String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
-                String phone = record.isSet(phoneKey) ? unsanitizeCsvField(record.get(phoneKey)) : null;
-                if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
-                    phones.add(new PhoneDto(label, phone));
+                if (!headerNames.contains("Phone" + i) || !headerNames.contains("Phone" + i + "_Label")) {
+                    throw new InvalidRequestException(
+                            "CSV header for Phone" + i + " is incomplete or missing; both Phone" + i +
+                                    " and Phone" + i + "_Label are required for a contiguous sequence up to Phone" + maxPhoneIndex);
                 }
             }
-            request.setPhones(phones);
 
-            if (emails.isEmpty() || phones.isEmpty()) {
-                throw new InvalidRequestException("Row " + record.getRecordNumber() + " must have at least one email and one phone");
+            List<CSVRecord> records;
+            try {
+                records = parser.getRecords();
+            } catch (Exception ex) {
+                throw new InvalidRequestException("Unable to read CSV rows: " + ex.getMessage());
             }
 
-            requests.add(request);
+            for (CSVRecord record : records) {
+                ContactRequest request = new ContactRequest();
+
+                String title = record.isSet("Title") ? unsanitizeCsvField(record.get("Title")) : null;
+                String firstName = record.isSet("FirstName") ? unsanitizeCsvField(record.get("FirstName")) : null;
+                String lastName = record.isSet("LastName") ? unsanitizeCsvField(record.get("LastName")) : null;
+
+                if (title == null || title.isBlank() || firstName == null || firstName.isBlank()
+                        || lastName == null || lastName.isBlank()) {
+                    throw new InvalidRequestException("Row " + record.getRecordNumber() + " is missing required fields");
+                }
+
+                request.setTitle(title);
+                request.setFirstName(firstName);
+                request.setLastName(lastName);
+
+                List<EmailDto> emails = new ArrayList<>();
+                for (int i = 1; i <= maxEmailIndex; i++) {
+                    String labelKey = "Email" + i + "_Label";
+                    String emailKey = "Email" + i;
+                    String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
+                    String email = record.isSet(emailKey) ? unsanitizeCsvField(record.get(emailKey)) : null;
+                    if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
+                        emails.add(new EmailDto(label, email));
+                    }
+                }
+                request.setEmails(emails);
+
+                List<PhoneDto> phones = new ArrayList<>();
+                for (int i = 1; i <= maxPhoneIndex; i++) {
+                    String labelKey = "Phone" + i + "_Label";
+                    String phoneKey = "Phone" + i;
+                    String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
+                    String phone = record.isSet(phoneKey) ? unsanitizeCsvField(record.get(phoneKey)) : null;
+                    if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
+                        phones.add(new PhoneDto(label, phone));
+                    }
+                }
+                request.setPhones(phones);
+
+                if (emails.isEmpty() || phones.isEmpty()) {
+                    throw new InvalidRequestException("Row " + record.getRecordNumber() + " must have at least one email and one phone");
+                }
+
+                requests.add(request);
+            }
+        } catch (IOException ex) {
+            throw new InvalidRequestException("Unable to parse the uploaded CSV file: " + ex.getMessage());
         }
 
         for (ContactRequest request : requests) {

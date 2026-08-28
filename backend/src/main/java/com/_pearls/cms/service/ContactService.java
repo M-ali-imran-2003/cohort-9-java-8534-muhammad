@@ -271,6 +271,7 @@ public class ContactService {
         }
     }
 
+    @Transactional
     public SuccessResponse importContacts(Long userId, InputStream inputStream) throws IOException {
         Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
 
@@ -320,7 +321,7 @@ public class ContactService {
         List<CSVRecord> records;
         try {
             records = parser.getRecords();
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             throw new InvalidRequestException("Unable to read CSV rows: " + ex.getMessage());
         }
 

@@ -1,0 +1,148 @@
+.contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.contacts-search {
+  display: flex;
+  gap: 8px;
+}
+
+.contacts-search input {
+  min-width: 240px;
+}
+
+.contacts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.contacts-table th,
+.contacts-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.contacts-table th {
+  background: #f7f9fc;
+  color: #555;
+  font-weight: 600;
+}
+
+.contacts-table tr:last-child td {
+  border-bottom: none;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.contact-action-btn {
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.contact-action-btn:hover {
+  background: #f0f6fd;
+  border-color: #4a90e2;
+}
+
+.contact-action-btn.danger:hover {
+  background: #ffebee;
+  border-color: #d32f2f;
+  color: #d32f2f;
+}
+
+.contacts-empty {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.field-array-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.field-array-row .form-input {
+  flex: 1;
+}
+
+.field-array-remove {
+  background: transparent;
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.field-array-add {
+  background: transparent;
+  border: 1px dashed #4a90e2;
+  color: #4a90e2;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.modal-box-wide {
+  max-width: 560px;
+}
+
+.view-field {
+  margin-bottom: 14px;
+}
+
+.view-label {
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.view-value {
+  color: #222;
+  font-size: 14px;
+}

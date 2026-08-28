@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User,Long> {
 
-    @Query("SELECT u FROM users u WHERE u.email = :identifier OR u.phone = :identifier")
+    @Query("SELECT u FROM User u WHERE u.email = :identifier OR u.phone = :identifier")
     User findByEmailOrPhone(@Param("identifier") String identifier);
 
     boolean existsByEmail(String email);

@@ -340,7 +340,15 @@ public class ContactService {
                     String emailKey = "Email" + i;
                     String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
                     String email = record.isSet(emailKey) ? unsanitizeCsvField(record.get(emailKey)) : null;
-                    if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
+
+                    boolean hasLabel = label != null && !label.isBlank();
+                    boolean hasEmail = email != null && !email.isBlank();
+
+                    if (hasLabel != hasEmail) {
+                        throw new InvalidRequestException(
+                                "Row " + record.getRecordNumber() + " has an incomplete email pair at Email" + i);
+                    }
+                    if (hasLabel) {
                         emails.add(new EmailDto(label, email));
                     }
                 }
@@ -352,7 +360,15 @@ public class ContactService {
                     String phoneKey = "Phone" + i;
                     String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
                     String phone = record.isSet(phoneKey) ? unsanitizeCsvField(record.get(phoneKey)) : null;
-                    if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
+
+                    boolean hasLabel = label != null && !label.isBlank();
+                    boolean hasPhone = phone != null && !phone.isBlank();
+
+                    if (hasLabel != hasPhone) {
+                        throw new InvalidRequestException(
+                                "Row " + record.getRecordNumber() + " has an incomplete phone pair at Phone" + i);
+                    }
+                    if (hasLabel) {
                         phones.add(new PhoneDto(label, phone));
                     }
                 }

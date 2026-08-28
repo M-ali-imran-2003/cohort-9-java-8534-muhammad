@@ -327,9 +327,10 @@ public class ContactService {
 
         for (CSVRecord record : records) {
             ContactRequest request = new ContactRequest();
-            String title = unsanitizeCsvField(record.get("Title"));
-            String firstName = unsanitizeCsvField(record.get("FirstName"));
-            String lastName = unsanitizeCsvField(record.get("LastName"));
+
+            String title = record.isSet("Title") ? unsanitizeCsvField(record.get("Title")) : null;
+            String firstName = record.isSet("FirstName") ? unsanitizeCsvField(record.get("FirstName")) : null;
+            String lastName = record.isSet("LastName") ? unsanitizeCsvField(record.get("LastName")) : null;
 
             if (title == null || title.isBlank() || firstName == null || firstName.isBlank()
                     || lastName == null || lastName.isBlank()) {
@@ -342,8 +343,10 @@ public class ContactService {
 
             List<EmailDto> emails = new ArrayList<>();
             for (int i = 1; i <= maxEmailIndex; i++) {
-                String label = unsanitizeCsvField(record.get("Email" + i + "_Label"));
-                String email = unsanitizeCsvField(record.get("Email" + i));
+                String labelKey = "Email" + i + "_Label";
+                String emailKey = "Email" + i;
+                String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
+                String email = record.isSet(emailKey) ? unsanitizeCsvField(record.get(emailKey)) : null;
                 if (label != null && !label.isBlank() && email != null && !email.isBlank()) {
                     emails.add(new EmailDto(label, email));
                 }
@@ -352,8 +355,10 @@ public class ContactService {
 
             List<PhoneDto> phones = new ArrayList<>();
             for (int i = 1; i <= maxPhoneIndex; i++) {
-                String label = unsanitizeCsvField(record.get("Phone" + i + "_Label"));
-                String phone = unsanitizeCsvField(record.get("Phone" + i));
+                String labelKey = "Phone" + i + "_Label";
+                String phoneKey = "Phone" + i;
+                String label = record.isSet(labelKey) ? unsanitizeCsvField(record.get(labelKey)) : null;
+                String phone = record.isSet(phoneKey) ? unsanitizeCsvField(record.get(phoneKey)) : null;
                 if (label != null && !label.isBlank() && phone != null && !phone.isBlank()) {
                     phones.add(new PhoneDto(label, phone));
                 }

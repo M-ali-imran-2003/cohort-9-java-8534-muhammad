@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { deleteContact } from "../api/contactApi.js";
+import { useToast } from "../context/useToast.js";
+
 import "../styles/form.css";
 import "../styles/modal.css";
 
 function DeleteConfirmModal({ contact, onClose, onDeleted }) {
   const [error, setError] = useState("");
+  const { showToast } = useToast();
 
   const handleConfirm = async () => {
     try {
-      await deleteContact(contact.id);
+      const result = await deleteContact(contact.id);
+      showToast(result.message, "success");
       onDeleted();
     } catch (err) {
       setError(err.message);

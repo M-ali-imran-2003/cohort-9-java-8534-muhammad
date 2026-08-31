@@ -1,15 +1,14 @@
 import { Navigate } from "react-router-dom";
-
+import { useAuth } from "../context/useAuth.js";
+import Spinner from "../components/Spinner.jsx";
 function ProtectedRoute({ children }) {
-  // eslint-disable-next-line no-useless-assignment
-  let token = null;
-  try {
-    token = localStorage.getItem("token");
-  } catch {
-    return <Navigate to="/login" replace />;
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated === null) {
+    return <Spinner />;
   }
 
-  if (!token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

@@ -31,6 +31,7 @@
 .form-input:focus {
   outline: none;
   border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12);
 }
 
 .form-label {
@@ -96,4 +97,26 @@
 
 .form-button-secondary:hover {
   background-color: #f0f6fd;
+}
+
+.form-input,
+.form-button,
+.form-button-secondary,
+.contact-action-btn {
+  transition: all 0.15s ease;
+}
+
+.modal-box {
+  animation: modal-in 0.2s ease-out;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

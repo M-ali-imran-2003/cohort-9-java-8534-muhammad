@@ -7,8 +7,11 @@ import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +27,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder encoder;
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
 
     public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder encoder) {
         this.userRepository = userRepository;
@@ -57,7 +62,7 @@ public class AuthService {
         return new SuccessResponse("Registration Successful");
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public void login(LoginRequest loginRequest, HttpServletResponse response) {
 
         User dbUser = userRepository.findByEmailOrPhone(
                 loginRequest.getIdentifier()
@@ -66,8 +71,17 @@ public class AuthService {
         if (dbUser != null) {
 
             if (encoder.matches(loginRequest.getPassword(), dbUser.getPassword())) {
+                String token = jwtService.generateToken(dbUser.getId());
+
+                Cookie cookie = new Cookie("token", token);
+                cookie.setHttpOnly(true);
+                cookie.setSecure(cookieSecure);
+                cookie.setPath("/");
+                cookie.setMaxAge((int) (jwtService.getExpiryMs() / 1000));
+                cookie.setAttribute("SameSite", "Lax");
+
+                response.addCookie(cookie);
                 log.info("User Logged In successfully");
-                return new LoginResponse(jwtService.generateToken(dbUser.getId()));
             }
             else{
                 log.warn("Password does not match for the identified user");

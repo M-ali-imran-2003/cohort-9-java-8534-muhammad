@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { User, Users } from "lucide-react";
 import "../styles/layout.css";
 
 function Sidebar() {
@@ -12,7 +13,7 @@ function Sidebar() {
             isActive ? "sidebar-link active" : "sidebar-link"
           }
         >
-          Contacts
+          <Users size={18} /> Contacts
         </NavLink>
         <NavLink
           to="/profile"
@@ -20,7 +21,7 @@ function Sidebar() {
             isActive ? "sidebar-link active" : "sidebar-link"
           }
         >
-          Profile
+          <User size={18} /> Profile
         </NavLink>
       </nav>
     </aside>

@@ -1,12 +1,12 @@
 package com._pearls.cms.service;
 
 import com._pearls.cms.dto.LoginRequest;
-import com._pearls.cms.dto.LoginResponse;
 import com._pearls.cms.dto.RegisterRequest;
 import com._pearls.cms.dto.SuccessResponse;
 import com._pearls.cms.entity.User;
 import com._pearls.cms.exception.ResourceAlreadyExistsException;
 import com._pearls.cms.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,22 +31,21 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder encoder;
 
+    @Mock
+    private HttpServletResponse response;
+
     @InjectMocks
     private AuthService authService;
 
     @Test
     void registerSuccess() {
-
-        // Arrange
         RegisterRequest request = new RegisterRequest("Momin", "momin@gmail.com", "03214125522", "12345678");
         when(userRepository.existsByPhone(request.getPhone())).thenReturn(false);
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
         when(encoder.encode(request.getPassword())).thenReturn("encodedPassword123");
 
-        // Act
         SuccessResponse created = authService.register(request);
 
-        // Assert
         assertNotNull(created);
         assertEquals("Registration Successful", created.getMessage());
         verify(userRepository, times(1)).save(any(User.class));
@@ -54,74 +53,53 @@ class AuthServiceTest {
 
     @Test
     void registerFailEmail() {
-
-        // Arrange
         RegisterRequest request = new RegisterRequest("Momin", "momin@gmail.com", "03214125522", "12345678");
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
-        // Act
         assertThrows(ResourceAlreadyExistsException.class, () -> authService.register(request));
-
-        // Assert
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     void registerFailPhone() {
-
-        // Arrange
         RegisterRequest request = new RegisterRequest("Momin", "momin@gmail.com", "03214125522", "12345678");
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
         when(userRepository.existsByPhone(request.getPhone())).thenReturn(true);
 
-        // Act
         assertThrows(ResourceAlreadyExistsException.class, () -> authService.register(request));
-
-        // Assert
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     void loginSuccess() {
-
-        // Arrange
         LoginRequest request = new LoginRequest("03214556577", "12345678");
-        User user = new User(1001L,"Momin","momin@gmail.com","03214556577","12345678",LocalDateTime.now());
+        User user = new User(1001L, "Momin", "momin@gmail.com", "03214556577", "12345678", LocalDateTime.now());
         when(userRepository.findByEmailOrPhone(request.getIdentifier())).thenReturn(user);
-        when(encoder.matches(request.getPassword(),user.getPassword())).thenReturn(true);
+        when(encoder.matches(request.getPassword(), user.getPassword())).thenReturn(true);
         when(jwtService.generateToken(user.getId())).thenReturn("jwt-token-123");
 
-        // Act
-        LoginResponse token = authService.login(request);
+        assertDoesNotThrow(() -> authService.login(request, response));
 
-        // Assert
-        assertNotNull(token);
-        assertEquals("jwt-token-123", token.getToken());
-        }
+        verify(response, times(1)).addCookie(any());
+    }
 
     @Test
     void loginFailUserNotFound() {
-
-        // Arrange
         LoginRequest request = new LoginRequest("03214556577", "12345678");
         when(userRepository.findByEmailOrPhone(request.getIdentifier())).thenReturn(null);
 
-        // Act
-        assertThrows(BadCredentialsException.class, () -> authService.login(request));
+        assertThrows(BadCredentialsException.class, () -> authService.login(request, response));
+        verify(response, never()).addCookie(any());
     }
 
     @Test
     void loginFailPasswordIncorrect() {
-
-        // Arrange
         LoginRequest request = new LoginRequest("03214556577", "12345678");
-        User user = new User(1001L,"Momin","momin@gmail.com","03214556577","56784122",LocalDateTime.now());
+        User user = new User(1001L, "Momin", "momin@gmail.com", "03214556577", "56784122", LocalDateTime.now());
         when(userRepository.findByEmailOrPhone(request.getIdentifier())).thenReturn(user);
-        when(encoder.matches(request.getPassword(),user.getPassword())).thenReturn(false);
+        when(encoder.matches(request.getPassword(), user.getPassword())).thenReturn(false);
 
-        // Act
-        assertThrows(BadCredentialsException.class, () -> authService.login(request));
+        assertThrows(BadCredentialsException.class, () -> authService.login(request, response));
+        verify(response, never()).addCookie(any());
     }
-
 }
-

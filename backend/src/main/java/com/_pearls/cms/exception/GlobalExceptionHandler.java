@@ -6,6 +6,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,6 +133,25 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorResponse> handleIOException(IOException ex, HttpServletRequest request, HttpServletResponse response) {
+        if (ex.getClass().getName().contains("ClientAbortException") ||
+                (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("broken pipe"))) {
+            logger.warn("Client disconnected abruptly during data streaming: {}", ex.getMessage());
+            response.setStatus(HttpServletResponse.SC_OK);
+            return null;
+        }
+
+        logger.error("IO Exception occurred before/during processing: {}", ex.getMessage(), ex);
+
+        ErrorResponse error = new ErrorResponse(
+                "IO_FAILED",
+                "Failed to do the operation",
+                request.getRequestURI()
+        );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

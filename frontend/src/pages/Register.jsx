@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { registerUser } from "../api/authApi.js";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/useToast.js";
+
 import "../styles/form.css";
 
 function Register() {
@@ -13,12 +15,11 @@ function Register() {
   } = useForm({ mode: "onChange" });
 
   const [serverError, setServerError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const onSubmit = async (data) => {
     setServerError("");
-    setSuccess("");
 
     try {
       const result = await registerUser(
@@ -27,7 +28,7 @@ function Register() {
         data.phone,
         data.password,
       );
-      setSuccess(result.message);
+      showToast(result.message, "success");
       reset();
 
       setTimeout(() => {
@@ -48,7 +49,6 @@ function Register() {
       <h2 className="form-title">Register</h2>
 
       {serverError && <p className="form-message-error">{serverError}</p>}
-      {success && <p className="form-message-success">{success}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form-field">

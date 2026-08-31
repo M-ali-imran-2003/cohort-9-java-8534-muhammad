@@ -8,7 +8,7 @@ export async function login(identifier, password) {
     });
     return response.data;
   } catch (error) {
-    const message = error.response?.data?.message || "Invalid Credentials";
+    const message = error.response?.data?.message || "Login Failed";
     throw new Error(message, { cause: error });
   }
 }
@@ -28,4 +28,8 @@ export async function registerUser(name, email, phone, password) {
     err.fieldErrors = data.fieldErrors;
     throw err;
   }
+}
+
+export async function logout() {
+  await axiosClient.post("/api/auth/logout");
 }

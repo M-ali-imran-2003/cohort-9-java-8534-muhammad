@@ -57,6 +57,14 @@
   font-size: 13px;
 }
 
+.contact-action-btn,
+.form-button,
+.form-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .contact-action-btn:hover {
   background: #f0f6fd;
   border-color: #4a90e2;
@@ -65,7 +73,7 @@
 .contact-action-btn.danger:hover {
   background: #ffebee;
   border-color: #d32f2f;
-  color: #d32f2f;
+  color: #b43838;
 }
 
 .contacts-empty {
@@ -145,4 +153,10 @@
 .view-value {
   color: #222;
   font-size: 14px;
+}
+
+.contacts-actions-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }

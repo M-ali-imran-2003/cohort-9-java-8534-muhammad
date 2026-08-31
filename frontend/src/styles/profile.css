@@ -40,6 +40,10 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  display: flex;
 }
 
 .logout-button:hover {
